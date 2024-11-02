@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS movies (
+CREATE TABLE IF NOT EXISTS users (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_type text NOT NULL,
     email citext NOT NULL UNIQUE,
