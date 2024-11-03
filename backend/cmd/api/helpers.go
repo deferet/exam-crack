@@ -76,7 +76,7 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 			return fmt.Errorf("request body contains unknown field %s", fieldName)
 
 		// Panic is ok since it's a developer error indicating passing a non-pointer or nil pointer value to the decoder.
-		// This will not ever happen in production.
+		// This will never happen in production.
 		case errors.As(err, &invalidUnmarshalError):
 			panic(err)
 
