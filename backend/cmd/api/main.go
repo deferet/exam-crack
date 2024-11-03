@@ -15,6 +15,7 @@ import (
 
 const version = "1.0.0"
 
+// Define a config struct to hold all of the configuration settings for the application.
 type config struct {
 	port int
 	env  string
@@ -26,6 +27,7 @@ type config struct {
 	}
 }
 
+// Define an application struct to hold the application-wide dependencies for the API.
 type application struct {
 	config config
 	logger *slog.Logger
@@ -78,6 +80,9 @@ func main() {
 	os.Exit(1)
 }
 
+// Function openDB opens a connection pool to the PostgreSQL database.
+// It takes a config struct as a parameter, which contains the DSN and connection pool settings,
+// and returns a pointer to the sql.DB connection pool, or an error if a problem occurs.
 func openDB(cfg config) (*sql.DB, error) {
 	db, err := sql.Open("postgres", cfg.db.dsn)
 	if err != nil {
