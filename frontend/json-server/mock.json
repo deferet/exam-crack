@@ -1,0 +1,175 @@
+{
+    "authentication": [
+        {
+            "id": "correct",
+            "authentication_token": "IEYZQUBEMPPAKPOAWTPV6YJ6RM",
+            "expiry": "2021-04-17T11:03:36.767078518+02:00"
+        },
+        {
+            "id": "incorrect",
+            "error": "invalid authentication credentials"
+        }
+    ],
+    
+    "tests": [
+        {
+            "id": "c9a1bcae-7af2-4b47-9c67-ea2b1ff2b9f4",
+            "creator_id": "78b8b6d9-5db7-4f8c-8a26-0672f2b6675f",
+            "name": "General Knowledge Quiz",
+            "description": "A simple quiz covering a variety of general knowledge topics.",
+            "categories": ["general", "knowledge", "fun"],
+            "started_count": 250,
+            "finished_count": 150,
+            "created_at": "2024-10-01T15:23:45Z",
+            "author_name": "Alice Smith",
+            "questions": [
+            {
+                "id": "ad4a2b93-8b7a-4f1a-b45c-2a5f24a91bf7",
+                "type": "multiple_choice",
+                "question": "What is the capital of France?",
+                "answers": [
+                { "id": "14e67893-2a33-4d1b-9446-2e5cfb98a877", "content": "Berlin", "correct": false, "explanation": "Berlin is the capital of Germany." },
+                { "id": "27b3c98f-1b52-49be-b3e9-1bb4edee9a17", "content": "Madrid", "correct": false, "explanation": "Madrid is the capital of Spain." },
+                { "id": "89d3eb43-6583-4828-9e3c-91d1e7a123d4", "content": "Paris", "correct": true, "explanation": "Paris is the capital of France." }
+                ]
+            }
+            ]
+        },
+        {
+            "id": "dd7a3fb1-fd89-4f9e-a354-3a5c2f1d7f9c",
+            "creator_id": "67dfb5b4-7a2d-4b67-8a4f-b2e3c787e652",
+            "name": "Science Trivia",
+            "description": "A quiz to test your science knowledge across physics, chemistry, and biology.",
+            "categories": ["science", "trivia"],
+            "started_count": 180,
+            "finished_count": 120,
+            "created_at": "2024-09-15T09:12:30Z",
+            "author_name": "John Doe",
+            "questions": [
+            {
+                "id": "b2c4f6d5-4a57-4524-a6f8-9d8e4a87efc1",
+                "type": "true_false",
+                "question": "The Earth orbits the Sun.",
+                "answers": [
+                { "id": "ff94d1d3-6a7f-47f7-8d1d-c4f4ed3b9b56", "content": "True", "correct": true, "explanation": "The Earth orbits around the Sun once every year." },
+                { "id": "3a7a4c52-bd18-44b8-9478-3e5b1f21c8d8", "content": "False", "correct": false, "explanation": "The Earth does orbit the Sun." }
+                ]
+            },
+            {
+                "id": "5a1f8d9c-e9d7-423b-a4e2-fcd1239a15d7",
+                "type": "multiple_choice",
+                "question": "What is the chemical symbol for water?",
+                "answers": [
+                { "id": "d3f78b1a-9425-4b1c-9d9f-0e7f4e8c1a21", "content": "O2", "correct": false, "explanation": "O2 is oxygen gas, not water." },
+                { "id": "9b1d3e7f-4a3c-45b8-a7d2-f3a2ed7d9b11", "content": "H2O", "correct": true, "explanation": "H2O is the chemical formula for water." }
+                ]
+            }
+            ]
+        },
+        {
+            "id": "f6d9b3a4-7c1a-4e57-b6f8-df9e6a5d7b1c",
+            "creator_id": "41b3f9d7-5f9c-4b18-a7f2-b4a9e9c4d6d3",
+            "name": "Math Basics",
+            "description": "A test to evaluate basic arithmetic and algebra skills.",
+            "categories": ["math", "arithmetic", "algebra"],
+            "started_count": 300,
+            "finished_count": 280,
+            "created_at": "2024-08-20T10:45:12Z",
+            "author_name": "Evelyn Green",
+            "questions": [
+            {
+                "id": "a7d1f9d3-b5a4-42b8-9c6d-e5f1d8a7d9c2",
+                "type": "short_answer",
+                "question": "What is 5 + 7?",
+                "answers": [
+                { "id": "c5e3f2d1-4b5a-4917-9a2f-7e1a2c8d9e3f", "content": "12", "correct": true, "explanation": "5 + 7 equals 12." }
+                ]
+            },
+            {
+                "id": "f3b9d8c7-7e8a-4c1a-8d9a-d1c2e4f7b8a5",
+                "type": "multiple_choice",
+                "question": "What is the solution to x^2 = 9?",
+                "answers": [
+                { "id": "a4d8e9b1-7d9f-4e6b-a1f8-c1b2f8a7e9d3", "content": "x = 3 or x = -3", "correct": true, "explanation": "The solutions to x^2 = 9 are x = ±3." },
+                { "id": "d9c4e7b8-5e1a-4d6f-b7a9-a1f3b2c7d8e4", "content": "x = 3", "correct": false, "explanation": "This only gives one of the solutions; x = -3 is also valid." }
+                ]
+            }
+            ]
+        }
+    ],
+    
+    "users": [
+        {
+            "id": "a3f6d7e9-5a1b-4b3c-9d5f-9f7e6c2b9d3f",
+            "username": "johndoe",
+            "name": "John",
+            "surname": "Doe",
+            "created_tests": [
+                {
+                "id": "b4a6c9d3-7a1e-49c6-b2e3-7e5f3d9b7c8a",
+                "name": "Math Basics",
+                "description": "A test to evaluate basic arithmetic and algebra skills.",
+                "created_at": "2024-08-20T10:45:12Z"
+                },
+                {
+                "id": "c8f2e3b5-9a7f-4d2c-8d9a-b1f4e7c5d8f7",
+                "name": "Science Trivia",
+                "description": "A quiz to test your science knowledge.",
+                "created_at": "2024-09-15T09:12:30Z"
+                }
+            ],
+            "completed_tests": [
+                {
+                "id": "d9b3e4f6-4a3b-42f8-a9d6-f7e4b1c8a7d5",
+                "test_name": "General Knowledge Quiz",
+                "completion_date": "2024-10-10T15:23:45Z"
+                },
+                {
+                "id": "e2a7b5c3-8d9e-4c1b-b5f8-d9f4a2e6b3d8",
+                "test_name": "History Quiz",
+                "completion_date": "2024-10-15T13:45:20Z"
+                }
+            ]
+        }
+    ],
+
+    "private": [
+        {
+            "id": "a3f6d7e9-5a1b-4b3c-9d5f-9f7e6c2b9d3f",
+            "type": "student",
+            "email": "john.doe@example.com",
+            "hashed_password": "3f5a4d6b8e9c7d8a1b4f2e3c5a9d6f7e",
+            "username": "johndoe",
+            "name": "John",
+            "surname": "Doe",
+            "created_at": "2024-06-20",
+            "updated_at": "2024-10-01",
+            "created_tests": [
+              {
+                "id": "b4a6c9d3-7a1e-49c6-b2e3-7e5f3d9b7c8a",
+                "name": "Math Basics",
+                "description": "A test to evaluate basic arithmetic and algebra skills.",
+                "created_at": "2024-08-20T10:45:12Z"
+              },
+              {
+                "id": "c8f2e3b5-9a7f-4d2c-8d9a-b1f4e7c5d8f7",
+                "name": "Science Trivia",
+                "description": "A quiz to test your science knowledge.",
+                "created_at": "2024-09-15T09:12:30Z"
+              }
+            ],
+            "completed_tests": [
+              {
+                "id": "d9b3e4f6-4a3b-42f8-a9d6-f7e4b1c8a7d5",
+                "test_name": "General Knowledge Quiz",
+                "completion_date": "2024-10-10T15:23:45Z"
+              },
+              {
+                "id": "e2a7b5c3-8d9e-4c1b-b5f8-d9f4a2e6b3d8",
+                "test_name": "History Quiz",
+                "completion_date": "2024-10-15T13:45:20Z"
+              }
+            ]
+          }
+    ]
+}
