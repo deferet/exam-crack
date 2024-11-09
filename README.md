@@ -39,6 +39,8 @@ Exam Crack is a learning application designed to help users create custom flashc
     npm install
     ```
 
+* Install [Vite](https://vite.dev/guide/):
+
 * Start the development server:
 
     ```bash
