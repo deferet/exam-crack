@@ -27,7 +27,7 @@ Exam Crack is a learning application designed to help users create custom flashc
 
 ### Frontend Setup
 
-* Navigate to the frontend directory
+* Navigate to the frontend directory:
 
     ```bash
     cd frontend
@@ -38,6 +38,8 @@ Exam Crack is a learning application designed to help users create custom flashc
     ```bash
     npm install
     ```
+
+* Install [Vite](https://vite.dev/guide/)
 
 * Start the development server:
 

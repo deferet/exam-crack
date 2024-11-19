@@ -2,8 +2,3 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global styles only if necessary */
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-}
