@@ -1,118 +1,106 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Homepage = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
     <div style={{
       backgroundColor: '#0f172a', 
       color: '#ffffff', 
       minHeight: '100vh',
-      padding: '3rem 4rem', 
       display: 'flex',
       flexDirection: 'column', 
-      justifyContent: 'flex-start',
-      alignItems: 'center',
       fontFamily: 'Inter, sans-serif'
     }}>
-      {/* Header */}
+      {/* Navigation Bar */}
       <div style={{
-        maxWidth: '600px',
-        textAlign: 'center',
-        marginBottom: '2rem' 
+        backgroundColor: '#1e293b',
+        padding: '1rem 2rem',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
       }}>
         <h1 style={{
-          fontSize: '2.5rem', 
-          fontWeight: 'bold'
-        }}>THE NEXT GENERATION OF LEARNING</h1>
-        
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          margin: 0,
+        }}>Exam Crack</h1>
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
+        }}>
+          <button onClick={() => handleNavigation('/')} style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#2563eb',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}>Home</button>
+          <button onClick={() => handleNavigation('/register')} style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#1f2937',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}>Register</button>
+          <button onClick={() => handleNavigation('/login')} style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#1f2937',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}>Login</button>
+          <button onClick={() => handleNavigation('/settings')} style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#1f2937',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}>Settings</button>
+          <button onClick={() => handleNavigation('/test')} style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#1f2937',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}>Test</button>
+        </div>
       </div>
 
-      {/* Registration and login */}
+      {/* Main Content */}
       <div style={{
-        maxWidth: '400px',
-        width: '100%',
-        padding: '3rem',
-        backgroundColor: '#1e293b', 
-        borderRadius: '8px'
+        flex: 1,
+        padding: '3rem 4rem',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
       }}>
-        <h2 style={{
-          fontSize: '2rem',
-          marginBottom: '1rem',
-          textAlign: 'center'
-        }}>Exam Crack</h2>
-        <form>
-          <div style={{
-            marginBottom: '1rem'
-          }}>
-            <label htmlFor="email" style={{
-              display: 'block',
-              marginBottom: '0.5rem'
-            }}>Email*</label>
-            <input
-              type="email"
-              id="email"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '4px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#334155',
-                color: '#ffffff'
-              }}
-              required
-            />
-          </div>
-          <div style={{
-            marginBottom: '1rem'
-          }}>
-            <label htmlFor="password" style={{
-              display: 'block',
-              marginBottom: '0.5rem'
-            }}>Password*</label>
-            <input
-              type="password"
-              id="password"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '4px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#334155',
-                color: '#ffffff'
-              }}
-              required
-            />
-          </div>
-          <button type="button" style={{
-            width: '100%',
-            padding: '1rem',
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '1.25rem',
-            marginBottom: '1rem'
-          }}>Log in</button>
-          <p style={{
-            textAlign: 'center',
-            margin: '1rem 0'
-          }}>or</p>
-          <button type="submit" style={{
-            width: '100%',
-            padding: '1rem',
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '1.25rem'
-          }}>Sign up</button>
-        </form>
+        <h1 style={{
+          fontSize: '2.5rem',
+          fontWeight: 'bold',
+          marginBottom: '2rem',
+        }}>THE NEXT GENERATION OF LEARNING</h1>
+        <p style={{
+          fontSize: '1.25rem',
+          color: '#cbd5e1',
+        }}>
+          Welcome to Exam Crack. Empower your learning journey with us!
+        </p>
       </div>
     </div>
   );
 };
 
 export default Homepage;
-
-
