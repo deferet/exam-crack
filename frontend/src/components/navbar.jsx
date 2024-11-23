@@ -1,71 +1,72 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
-    <nav style={{
-      backgroundColor: '#1e293b', 
-      padding: '2rem 6rem', 
+    <div style={{
+      backgroundColor: '#1e293b',
+      padding: '1rem 2rem',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      fontWeight: 'bold' 
     }}>
-      <div style={{
-        color: '#ffffff', 
+      <h1 style={{
         fontSize: '1.5rem',
         fontWeight: 'bold',
-        cursor:'pointer',
-      }}>
-        Exam-crack
-      </div>
-
+        margin: 0,
+      }}>Exam Crack</h1>
       <div style={{
         display: 'flex',
-        gap: '1.5rem', 
-        padding: '0 1rem' 
+        gap: '1rem',
       }}>
-        <button style={{
-          backgroundColor: 'transparent',
+        <button onClick={() => handleNavigation('/')} style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#2563eb',
           color: '#ffffff',
           border: 'none',
+          borderRadius: '4px',
           cursor: 'pointer',
-          fontSize: '1rem',
-          fontWeight: 'bold' 
-        }}>
-          Mytests
-        </button>
-        <button style={{
-          backgroundColor: 'transparent',
+        }}>Home</button>
+        <button onClick={() => handleNavigation('/register')} style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#1f2937',
           color: '#ffffff',
           border: 'none',
+          borderRadius: '4px',
           cursor: 'pointer',
-          fontSize: '1rem',
-          fontWeight: 'bold' 
-        }}>
-          Settings
-        </button>
-        <button style={{
-          backgroundColor: 'transparent',
+        }}>Register</button>
+        <button onClick={() => handleNavigation('/login')} style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#1f2937',
           color: '#ffffff',
           border: 'none',
+          borderRadius: '4px',
           cursor: 'pointer',
-          fontSize: '1rem',
-          fontWeight: 'bold' 
-        }}>
-          Login
-        </button>
-        <button style={{
-          backgroundColor: 'transparent',
+        }}>Login</button>
+        <button onClick={() => handleNavigation('/settings')} style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#1f2937',
           color: '#ffffff',
           border: 'none',
+          borderRadius: '4px',
           cursor: 'pointer',
-          fontSize: '1rem',
-          fontWeight: 'bold' 
-        }}>
-          Register
-        </button>
+        }}>Settings</button>
+        <button onClick={() => handleNavigation('/test')} style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#1f2937',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}>Test</button>
       </div>
-    </nav>
+    </div>
   );
 };
 
