@@ -1,20 +1,26 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Button = ({ label, path, onClick }) => {
   return (
-    <button onClick={onClick} style={{
-      padding: '0.5rem 1rem',
-      backgroundColor: path === window.location.pathname ? '#2563eb' : '#1f2937', // Highlight active button
-      color: '#ffffff',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      flexGrow: 0,  // Prevents buttons from growing
-      flexShrink: 0,  // Prevents buttons from shrinking
-      width: 'auto',  // Ensure the width is not stretched
-      whiteSpace: 'nowrap',  // Prevent button text from breaking into new line
-    }}>
+    <button
+      onClick={onClick}
+      style={{
+        padding: '0.5rem 1rem',
+        backgroundColor: path === window.location.pathname ? '#2563eb' : '#1f2937', // Highlight active button
+        color: '#ffffff',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        flexGrow: 0,  // Prevents buttons from growing
+        flexShrink: 0,  // Prevents buttons from shrinking
+        width: 'auto',  // Ensure the width is not stretched
+        whiteSpace: 'nowrap',  // Prevent button text from breaking into new line
+        transition: 'background-color 0.3s ease', // Smooth transition for background color
+      }}
+      onMouseOver={(e) => e.target.style.backgroundColor = '#3b82f6'}  // Lighter blue on hover
+      onMouseOut={(e) => e.target.style.backgroundColor = path === window.location.pathname ? '#2563eb' : '#1f2937'} // Reset color
+    >
       {label}
     </button>
   );
@@ -22,7 +28,6 @@ const Button = ({ label, path, onClick }) => {
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleNavigation = (path) => {
     navigate(path);
