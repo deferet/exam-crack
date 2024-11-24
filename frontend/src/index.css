@@ -8,5 +8,15 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow-y: scroll; /* Treść może być przewijana */
+}
 
+::-webkit-scrollbar {
+  display: none; /* Ukrywa pasek przewijania w przeglądarkach WebKit (np. Chrome, Edge) */
+}
 
+html {
+  -ms-overflow-style: none; /* Ukrywa pasek przewijania w IE i Edge */
+  scrollbar-width: none;    /* Ukrywa pasek przewijania w Firefox */
+}

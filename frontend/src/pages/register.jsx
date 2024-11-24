@@ -7,6 +7,7 @@ const Register = () => {
       color: '#ffffff', 
       minHeight: '100vh',
       padding: '3rem 4rem', 
+      paddingTop: '70px', // Przesunięcie zawartości poniżej navbaru
       display: 'flex',
       flexDirection: 'column', 
       justifyContent: 'flex-start',
@@ -23,7 +24,6 @@ const Register = () => {
           fontSize: '2.5rem', 
           fontWeight: 'bold'
         }}>THE NEXT GENERATION OF LEARNING</h1>
-        
       </div>
 
       {/* Registration and login */}
