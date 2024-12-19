@@ -1,6 +1,5 @@
-import React from 'react';
 
-const Register = () => {
+const Login = () => {
   return (
     <div style={{
       backgroundColor: '#0f172a', 
@@ -26,7 +25,7 @@ const Register = () => {
         }}>THE NEXT GENERATION OF LEARNING</h1>
       </div>
 
-      {/* Registration Form */}
+      {/* Login */}
       <div style={{
         maxWidth: '400px',
         width: '100%',
@@ -40,27 +39,6 @@ const Register = () => {
           textAlign: 'center'
         }}>Exam Crack</h2>
         <form>
-          <div style={{
-            marginBottom: '1rem'
-          }}>
-            <label htmlFor="name" style={{
-              display: 'block',
-              marginBottom: '0.5rem'
-            }}>Name*</label>
-            <input
-              type="text"
-              id="name"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '4px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#334155',
-                color: '#ffffff'
-              }}
-              required
-            />
-          </div>
           <div style={{
             marginBottom: '1rem'
           }}>
@@ -103,7 +81,7 @@ const Register = () => {
               required
             />
           </div>
-          <button type="submit" style={{
+          <button type="button" style={{
             width: '100%',
             padding: '1rem',
             backgroundColor: '#2563eb',
@@ -112,11 +90,11 @@ const Register = () => {
             borderRadius: '4px',
             cursor: 'pointer',
             fontSize: '1.25rem'
-          }}>Sign up</button>
+          }}>Log in</button>
         </form>
       </div>
     </div>
   );
 };
 
-export default Register;
+export default Login;
