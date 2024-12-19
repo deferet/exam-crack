@@ -1,72 +1,22 @@
-import React from 'react';
+import React from "react";
 
 const Navbar = () => {
-  return (
-    <nav style={{
-      backgroundColor: '#1e293b', 
-      padding: '2rem 6rem', 
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      fontWeight: 'bold' 
-    }}>
-      <div style={{
-        color: '#ffffff', 
-        fontSize: '1.5rem',
-        fontWeight: 'bold',
-        cursor:'pointer',
-      }}>
-        Exam-crack
-      </div>
+    return (
+        <nav className="bg-[#1e293b] px-24 py-8 flex justify-between items-center font-bold">
+            {/* Logo */}
+            <div className="text-white text-xl cursor-pointer">
+                Exam Crack
+            </div>
 
-      <div style={{
-        display: 'flex',
-        gap: '1.5rem', 
-        padding: '0 1rem' 
-      }}>
-        <button style={{
-          backgroundColor: 'transparent',
-          color: '#ffffff',
-          border: 'none',
-          cursor: 'pointer',
-          fontSize: '1rem',
-          fontWeight: 'bold' 
-        }}>
-          Mytests
-        </button>
-        <button style={{
-          backgroundColor: 'transparent',
-          color: '#ffffff',
-          border: 'none',
-          cursor: 'pointer',
-          fontSize: '1rem',
-          fontWeight: 'bold' 
-        }}>
-          Settings
-        </button>
-        <button style={{
-          backgroundColor: 'transparent',
-          color: '#ffffff',
-          border: 'none',
-          cursor: 'pointer',
-          fontSize: '1rem',
-          fontWeight: 'bold' 
-        }}>
-          Login
-        </button>
-        <button style={{
-          backgroundColor: 'transparent',
-          color: '#ffffff',
-          border: 'none',
-          cursor: 'pointer',
-          fontSize: '1rem',
-          fontWeight: 'bold' 
-        }}>
-          Register
-        </button>
-      </div>
-    </nav>
-  );
+            {/* Links */}
+            <div className="flex gap-6 px-4">
+                <button className="navbar-button">Mytests</button>
+                <button className="navbar-button">Settings</button>
+                <button className="navbar-button">Login</button>
+                <button className="navbar-button">Register</button>
+            </div>
+        </nav>
+    );
 };
 
 export default Navbar;

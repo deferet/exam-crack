@@ -1,118 +1,50 @@
-import React from 'react';
+import React from "react";
 
 const Homepage = () => {
-  return (
-    <div style={{
-      backgroundColor: '#0f172a', 
-      color: '#ffffff', 
-      minHeight: '100vh',
-      padding: '3rem 4rem', 
-      display: 'flex',
-      flexDirection: 'column', 
-      justifyContent: 'flex-start',
-      alignItems: 'center',
-      fontFamily: 'Inter, sans-serif'
-    }}>
-      {/* Header */}
-      <div style={{
-        maxWidth: '600px',
-        textAlign: 'center',
-        marginBottom: '2rem' 
-      }}>
-        <h1 style={{
-          fontSize: '2.5rem', 
-          fontWeight: 'bold'
-        }}>THE NEXT GENERATION OF LEARNING</h1>
-        
-      </div>
+    return (
+        <div className="bg-[#0f172a] min-h-screen flex flex-col items-center justify-start py-12 px-6 text-white">
+            {/* Header */}
+            <div className="max-w-lg text-center mb-8">
+                <h1 className="text-4xl font-bold">
+                    THE NEXT GENERATION OF LEARNING
+                </h1>
+            </div>
 
-      {/* Registration and login */}
-      <div style={{
-        maxWidth: '400px',
-        width: '100%',
-        padding: '3rem',
-        backgroundColor: '#1e293b', 
-        borderRadius: '8px'
-      }}>
-        <h2 style={{
-          fontSize: '2rem',
-          marginBottom: '1rem',
-          textAlign: 'center'
-        }}>Exam Crack</h2>
-        <form>
-          <div style={{
-            marginBottom: '1rem'
-          }}>
-            <label htmlFor="email" style={{
-              display: 'block',
-              marginBottom: '0.5rem'
-            }}>Email*</label>
-            <input
-              type="email"
-              id="email"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '4px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#334155',
-                color: '#ffffff'
-              }}
-              required
-            />
-          </div>
-          <div style={{
-            marginBottom: '1rem'
-          }}>
-            <label htmlFor="password" style={{
-              display: 'block',
-              marginBottom: '0.5rem'
-            }}>Password*</label>
-            <input
-              type="password"
-              id="password"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '4px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#334155',
-                color: '#ffffff'
-              }}
-              required
-            />
-          </div>
-          <button type="button" style={{
-            width: '100%',
-            padding: '1rem',
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '1.25rem',
-            marginBottom: '1rem'
-          }}>Log in</button>
-          <p style={{
-            textAlign: 'center',
-            margin: '1rem 0'
-          }}>or</p>
-          <button type="submit" style={{
-            width: '100%',
-            padding: '1rem',
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '1.25rem'
-          }}>Sign up</button>
-        </form>
-      </div>
-    </div>
-  );
+            {/* Registration and login */}
+            <div className="form-container">
+                <h2 className="form-title">Exam Crack</h2>
+                <form>
+                    <div className="form-group">
+                        <label htmlFor="email" className="form-label">Email*</label>
+                        <input
+                            type="email"
+                            id="email"
+                            className="form-input"
+                            placeholder="Enter your email"
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="password" className="form-label">Password*</label>
+                        <input
+                            type="password"
+                            id="password"
+                            className="form-input"
+                            placeholder="Enter your password"
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="form-button">
+                        Log in
+                    </button>
+                    <p className="form-separator">or</p>
+                    <button type="button" className="form-button">
+                        Sign up
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
 };
 
 export default Homepage;
-
-
