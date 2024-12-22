@@ -7,8 +7,8 @@ import Register from './pages/register.jsx';
 const App = () => {
   return (
     <Router>
-      <div style={{}}>
-        <Navbar style={{}} />
+      <div>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route path="/register" element={<Register />} />

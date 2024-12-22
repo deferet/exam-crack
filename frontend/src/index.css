@@ -8,6 +8,7 @@
   box-sizing: border-box;
 }
 
+/* Stylizacja przewijania (z gałęzi feat_login&register_page_Robert) */
 html, body {
   overflow-y: scroll; /* Treść może być przewijana */
 }
@@ -19,4 +20,83 @@ html, body {
 html {
   -ms-overflow-style: none; /* Ukrywa pasek przewijania w IE i Edge */
   scrollbar-width: none;    /* Ukrywa pasek przewijania w Firefox */
+}
+
+/* Stylizacja przycisków nawigacji (z gałęzi main) */
+.navbar-button {
+  background-color: transparent;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: text-decoration 0.3s ease;
+}
+
+.navbar-button:hover {
+  text-decoration: underline;
+}
+
+/* Stylizacja formularza (z gałęzi main) */
+.form-container {
+  max-width: 400px;
+  width: 100%;
+  padding: 3rem;
+  background-color: #1e293b;
+  border-radius: 8px;
+  color: white;
+}
+
+.form-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.form-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  background-color: #334155;
+  color: white;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: #2563eb;
+}
+
+.form-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.form-button:hover {
+  background-color: #1d4ed8;
+}
+
+.form-separator {
+  text-align: center;
+  margin: 1rem 0;
+  color: #94a3b8;
 }
