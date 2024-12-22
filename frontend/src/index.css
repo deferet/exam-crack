@@ -8,6 +8,21 @@
   box-sizing: border-box;
 }
 
+/* Stylizacja przewijania (z gałęzi feat_login&register_page_Robert) */
+html, body {
+  overflow-y: scroll; /* Treść może być przewijana */
+}
+
+::-webkit-scrollbar {
+  display: none; /* Ukrywa pasek przewijania w przeglądarkach WebKit (np. Chrome, Edge) */
+}
+
+html {
+  -ms-overflow-style: none; /* Ukrywa pasek przewijania w IE i Edge */
+  scrollbar-width: none;    /* Ukrywa pasek przewijania w Firefox */
+}
+
+/* Stylizacja przycisków nawigacji (z gałęzi main) */
 .navbar-button {
   background-color: transparent;
   color: #ffffff;
@@ -22,8 +37,7 @@
   text-decoration: underline;
 }
 
-
-/* Formularz */
+/* Stylizacja formularza (z gałęzi main) */
 .form-container {
   max-width: 400px;
   width: 100%;
@@ -86,5 +100,3 @@
   margin: 1rem 0;
   color: #94a3b8;
 }
-
-
