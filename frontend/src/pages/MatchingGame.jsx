@@ -49,7 +49,7 @@ const MatchingGame = ({ test, setMode, setSelectedTest }) => {
             <h1 className="text-4xl font-bold mb-8">Matching Game</h1>
 
             <div className="grid grid-cols-4 gap-6 w-full max-w-4xl">
-                {/* Pytania */}
+                {/* Questions */}
                 {shuffledQuestions.map((question, index) => (
                     <div
                         key={index}
