@@ -105,7 +105,7 @@ const MatchingGame = ({ test, setMode, setSelectedTest }) => {
                 </button>
             </div>
 
-            {/* Gratulacje po zakończeniu */}
+            {/* Congratulation after ending */}
             {matchedPairs.length === test.questions.length && (
                 <div className="mt-12 text-center text-green-500 text-xl">
                     🎉 Congratulations! You've matched all the pairs! 🎉
