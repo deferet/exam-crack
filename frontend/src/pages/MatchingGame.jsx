@@ -84,7 +84,7 @@ const MatchingGame = ({ test, setMode, setSelectedTest }) => {
                 ))}
             </div>
 
-            {/* Komunikaty */}
+            {/* Prompts */}
             <div className="mt-8 text-center">
                 {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
                 <button
