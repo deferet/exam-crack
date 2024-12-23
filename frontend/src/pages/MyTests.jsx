@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import SolveTest from "./SolveTest";
 import MatchingGame from "./MatchingGame";
+import LearningMode from "./LearningMode";
 
 const MyTests = () => {
     const [tests, setTests] = useState([]);
@@ -62,6 +63,14 @@ const MyTests = () => {
             case "matching":
                 return (
                     <MatchingGame
+                        test={selectedTest}
+                        setMode={setMode}
+                        setSelectedTest={setSelectedTest}
+                    />
+                );
+            case "learning":
+                return (
+                    <LearningMode
                         test={selectedTest}
                         setMode={setMode}
                         setSelectedTest={setSelectedTest}
@@ -163,6 +172,15 @@ const MyTests = () => {
                                         }}
                                     >
                                         Solve Test
+                                    </button>
+                                    <button
+                                        className="text-yellow-400 hover:underline"
+                                        onClick={() => {
+                                            setSelectedTest(test);
+                                            setMode("learning");
+                                        }}
+                                    >
+                                        Learning Mode
                                     </button>
                                     <button
                                         className="text-green-400 hover:underline"
