@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,6 +27,10 @@ const Button = ({ label, path, onClick }) => {
     </button>
   );
 };
+=======
+import React from "react";
+import { Link } from "react-router"; 
+>>>>>>> afb8659b64dc7dac691cf6766815387aef6d258c
 
 const Navbar = () => {
   const navigate = useNavigate();
