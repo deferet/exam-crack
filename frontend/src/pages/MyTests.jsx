@@ -43,7 +43,6 @@ const MyTests = () => {
             return;
         }
 
-        // Check for duplicate questions
         if (questions.some(q => q.question === currentQuestion.question)) {
             setErrorMessage("This question already exists.");
             return;
@@ -78,7 +77,6 @@ const MyTests = () => {
             return;
         }
 
-        // Check for duplicate questions in the test
         if (editingTest.questions.some(q => q.question === newQuestion.question)) {
             setErrorMessage("This question already exists in the test.");
             return;
