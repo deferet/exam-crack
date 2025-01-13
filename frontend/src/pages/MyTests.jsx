@@ -12,6 +12,8 @@ const MyTests = () => {
     const [selectedTest, setSelectedTest] = useState(null);
     const [mode, setMode] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
+    const [editingTest, setEditingTest] = useState(null);
+    const [newQuestion, setNewQuestion] = useState({ question: "", answer: "" });
 
     const handleStartAddingQuestions = () => {
         if (newTestName.trim() === "") {
@@ -41,6 +43,12 @@ const MyTests = () => {
             return;
         }
 
+        // Check for duplicate questions
+        if (questions.some(q => q.question === currentQuestion.question)) {
+            setErrorMessage("This question already exists.");
+            return;
+        }
+
         setQuestions([...questions, currentQuestion]);
         setCurrentQuestion({ question: "", answer: "" });
         setErrorMessage("");
@@ -49,6 +57,100 @@ const MyTests = () => {
     const handleDeleteTest = (id) => {
         setTests(tests.filter((test) => test.id !== id));
     };
+
+    const handleEditQuestions = (test) => {
+        setEditingTest(test);
+    };
+
+    const handleUpdateQuestion = (index, updatedQuestion) => {
+        const updatedQuestions = editingTest.questions.map((q, i) => (i === index ? updatedQuestion : q));
+        setEditingTest({ ...editingTest, questions: updatedQuestions });
+    };
+
+    const handleDeleteQuestion = (index) => {
+        const updatedQuestions = editingTest.questions.filter((_, i) => i !== index);
+        setEditingTest({ ...editingTest, questions: updatedQuestions });
+    };
+
+    const handleAddNewQuestionToTest = () => {
+        if (newQuestion.question.trim() === "" || newQuestion.answer.trim() === "") {
+            setErrorMessage("Both question and answer are required.");
+            return;
+        }
+
+        // Check for duplicate questions in the test
+        if (editingTest.questions.some(q => q.question === newQuestion.question)) {
+            setErrorMessage("This question already exists in the test.");
+            return;
+        }
+
+        setEditingTest({ ...editingTest, questions: [...editingTest.questions, newQuestion] });
+        setNewQuestion({ question: "", answer: "" });
+        setErrorMessage("");
+    };
+
+    const saveEditedTest = () => {
+        setTests(tests.map((test) => (test.id === editingTest.id ? editingTest : test)));
+        setEditingTest(null);
+    };
+
+    if (editingTest) {
+        return (
+            <div className="bg-[#0f172a] min-h-screen flex flex-col items-center py-12 px-6 text-white">
+                <h1 className="text-4xl font-bold mb-8">Edit Questions</h1>
+                <div className="w-full max-w-lg mb-6">
+                    {editingTest.questions.map((q, index) => (
+                        <div key={index} className="mb-4 p-4 bg-[#1e293b] rounded-lg">
+                            <input
+                                type="text"
+                                className="form-input mb-2 w-full"
+                                value={q.question}
+                                onChange={(e) => handleUpdateQuestion(index, { ...q, question: e.target.value })}
+                            />
+                            <input
+                                type="text"
+                                className="form-input mb-2 w-full"
+                                value={q.answer}
+                                onChange={(e) => handleUpdateQuestion(index, { ...q, answer: e.target.value })}
+                            />
+                            <button
+                                className="text-red-500 hover:underline"
+                                onClick={() => handleDeleteQuestion(index)}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    ))}
+                    <div className="p-4 bg-[#1e293b] rounded-lg mb-4">
+                        <h3 className="text-lg font-bold mb-2">Add New Question</h3>
+                        <input
+                            type="text"
+                            className="form-input mb-2 w-full"
+                            placeholder="New question"
+                            value={newQuestion.question}
+                            onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })}
+                        />
+                        <input
+                            type="text"
+                            className="form-input mb-2 w-full"
+                            placeholder="New answer"
+                            value={newQuestion.answer}
+                            onChange={(e) => setNewQuestion({ ...newQuestion, answer: e.target.value })}
+                        />
+                        <button
+                            className="form-button w-full"
+                            onClick={handleAddNewQuestionToTest}
+                        >
+                            Add Question
+                        </button>
+                    </div>
+                    <button className="form-button w-full" onClick={saveEditedTest}>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     if (selectedTest && mode) {
         switch (mode) {
@@ -150,7 +252,7 @@ const MyTests = () => {
                 </div>
             )}
 
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-lg">
                 {tests.length === 0 ? (
                     <p className="text-center text-gray-300">
                         No tests available. Add a new test to get started!
@@ -160,44 +262,50 @@ const MyTests = () => {
                         {tests.map((test) => (
                             <li
                                 key={test.id}
-                                className="flex justify-between items-center bg-[#1e293b] p-4 rounded-lg"
+                                className="flex flex-col items-start bg-[#1e293b] p-4 rounded-lg"
                             >
-                                <span className="font-bold">{test.name}</span>
-                                <div className="flex gap-4">
-                                    <button
-                                        className="text-blue-400 hover:underline"
-                                        onClick={() => {
-                                            setSelectedTest(test);
-                                            setMode("solve");
-                                        }}
-                                    >
-                                        Solve Test
-                                    </button>
-                                    <button
-                                        className="text-yellow-400 hover:underline"
-                                        onClick={() => {
-                                            setSelectedTest(test);
-                                            setMode("learning");
-                                        }}
-                                    >
-                                        Learning Mode
-                                    </button>
-                                    <button
-                                        className="text-green-400 hover:underline"
-                                        onClick={() => {
-                                            setSelectedTest(test);
-                                            setMode("matching");
-                                        }}
-                                    >
-                                        Matching Game
-                                    </button>
-                                    <button
-                                        className="text-red-400 hover:underline"
-                                        onClick={() => handleDeleteTest(test.id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
+                                <span className="font-bold mb-2 text-lg text-center w-full block">{test.name}</span>
+                                <div className="flex gap-4 flex-wrap justify-center w-full">
+                                      <button
+                                          className="border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white px-4 py-2 rounded-lg"
+                                          onClick={() => {
+                                              setSelectedTest(test);
+                                              setMode("solve");
+                                          }}
+                                      >
+                                          Solve Test
+                                      </button>
+                                      <button
+                                          className="border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-4 py-2 rounded-lg"
+                                          onClick={() => {
+                                              setSelectedTest(test);
+                                              setMode("learning");
+                                          }}
+                                      >
+                                          Learning Mode
+                                      </button>
+                                      <button
+                                          className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-black px-4 py-2 rounded-lg"
+                                          onClick={() => {
+                                              setSelectedTest(test);
+                                              setMode("matching");
+                                          }}
+                                      >
+                                          Matching Game
+                                      </button>
+                                      <button
+                                          className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-4 py-2 rounded-lg"
+                                          onClick={() => handleEditQuestions(test)}
+                                      >
+                                          Browse/Edit Questions
+                                      </button>
+                                      <button
+                                          className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-white px-4 py-2 rounded-lg"
+                                          onClick={() => handleDeleteTest(test.id)}
+                                      >
+                                          Delete
+                                      </button>
+                                  </div>
                             </li>
                         ))}
                     </ul>
