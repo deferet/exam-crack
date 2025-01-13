@@ -49,7 +49,7 @@ const MatchingGame = ({ test, setMode, setSelectedTest }) => {
             <h1 className="text-4xl font-bold mb-8">Matching Game</h1>
 
             <div className="grid grid-cols-4 gap-6 w-full max-w-4xl">
-                {/* Pytania */}
+                {/* Questions */}
                 {shuffledQuestions.map((question, index) => (
                     <div
                         key={index}
@@ -84,7 +84,7 @@ const MatchingGame = ({ test, setMode, setSelectedTest }) => {
                 ))}
             </div>
 
-            {/* Komunikaty */}
+            {/* Prompts */}
             <div className="mt-8 text-center">
                 {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
                 <button
@@ -105,7 +105,7 @@ const MatchingGame = ({ test, setMode, setSelectedTest }) => {
                 </button>
             </div>
 
-            {/* Gratulacje po zakończeniu */}
+            {/* Congratulation after ending */}
             {matchedPairs.length === test.questions.length && (
                 <div className="mt-12 text-center text-green-500 text-xl">
                     🎉 Congratulations! You've matched all the pairs! 🎉
