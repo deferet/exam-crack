@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,10 +26,6 @@ const Button = ({ label, path, onClick }) => {
     </button>
   );
 };
-=======
-import React from "react";
-import { Link } from "react-router"; 
->>>>>>> afb8659b64dc7dac691cf6766815387aef6d258c
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -74,7 +69,7 @@ const Navbar = () => {
         <Button label="Register" path="/register" onClick={() => handleNavigation('/register')} />
         <Button label="Login" path="/login" onClick={() => handleNavigation('/login')} />
         <Button label="Settings" path="/settings" onClick={() => handleNavigation('/settings')} />
-        <Button label="Test" path="/test" onClick={() => handleNavigation('/test')} />
+        <Button label="Mytests" path="/mytests" onClick={() => handleNavigation('/mytests')} />
       </div>
     </div>
   );
