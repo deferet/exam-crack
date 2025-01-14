@@ -146,7 +146,8 @@ const LearningMode = ({ test, setMode, setSelectedTest }) => {
                     </button>
                 )}
             </div>
-            <p className="text-gray-400 mt-4">Progress: {completedQuestions}/{test.questions.length} completed</p>
+
+            <p className="text-gray-400 mt-4">Progress for Current Question: {progress[currentIndex]}/2</p>
         </div>
     );
 };
