@@ -9,22 +9,22 @@
 }
 
 html, body {
-  overflow: hidden; /* Zapobiega pojawianiu się paska przewijania */
-  height: 100%; /* Upewnij się, że zawartość ma pełną wysokość */
+  overflow: hidden; 
+  
+  height: 100%; 
 }
 
 body {
-  overflow: scroll; /* Włącz przewijanie, ale ukryj pasek przewijania */
+  overflow: scroll; 
 }
 
-/* Ukrywa pasek przewijania w większości przeglądarek */
 ::-webkit-scrollbar {
-  width: 0px; /* Ustala szerokość paska przewijania na 0 */
-  background: transparent; /* Tło paska przewijania */
+  width: 0px; 
+  background: transparent; 
 }
 
 ::-webkit-scrollbar-thumb {
-  background: transparent; /* Ukrywa suwak paska przewijania */
+  background: transparent;
 }
 
 
