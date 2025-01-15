@@ -4,6 +4,8 @@ import flashcardImage from "../assets/flashcard.webp";
 import teenagersImage from "../assets/teenagers.webp";
 
 const Homepage = () => {
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true"; // Sprawdź, czy użytkownik jest zalogowany
+
   return (
     <div className="bg-[#0f172a] min-h-screen flex flex-col items-center py-12 px-6 text-white">
       {/* Main Container */}
@@ -36,18 +38,29 @@ const Homepage = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-6">Join Today</h2>
           <div className="flex flex-wrap justify-center gap-6">
-            <a
-              href="/register"
-              className="form-button w-60 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md text-lg text-center transition"
-            >
-              Register
-            </a>
-            <a
-              href="/login"
-              className="form-button w-60 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md text-lg text-center transition"
-            >
-              Login
-            </a>
+            {isLoggedIn ? (
+              <a
+                href="/mytests"
+                className="form-button w-60 bg-green-600 hover:bg-green-700 text-white py-3 rounded-md text-lg text-center transition"
+              >
+                Browse Tests
+              </a>
+            ) : (
+              <>
+                <a
+                  href="/register"
+                  className="form-button w-60 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md text-lg text-center transition"
+                >
+                  Register
+                </a>
+                <a
+                  href="/login"
+                  className="form-button w-60 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md text-lg text-center transition"
+                >
+                  Login
+                </a>
+              </>
+            )}
           </div>
         </div>
       </div>
