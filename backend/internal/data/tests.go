@@ -54,7 +54,15 @@ func (m TestModel) Insert(test *Test) error {
 		INSERT INTO tests (creator_id, name, description, times_started, times_completed, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at`
-	args := []any{test.CreatorId, test.Name, test.Description, test.TimesStarted, test.TimesCompleted, test.CreatedAt, test.UpdatedAt}
+	args := []any{
+		test.CreatorId,
+		test.Name,
+		test.Description,
+		test.TimesStarted,
+		test.TimesCompleted,
+		test.CreatedAt,
+		test.UpdatedAt,
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -81,10 +89,55 @@ func (m TestModel) GetByName(name string) (*Test, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, name).Scan(&test.ID, &test.CreatorId, &test.Name, &test.Description, &test.TimesStarted, &test.TimesCompleted, &test.CreatedAt, &test.UpdatedAt)
+	err := m.DB.QueryRowContext(ctx, query, name).Scan(
+		&test.ID,
+		&test.CreatorId,
+		&test.Name,
+		&test.Description,
+		&test.TimesStarted,
+		&test.TimesCompleted,
+		&test.CreatedAt,
+		&test.UpdatedAt,
+	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrRecordNotFound
+		}
+
 		return nil, err
 	}
 
 	return test, nil
+}
+
+func (m TestModel) Update(test *Test) error {
+	query := `
+		UPDATE tests
+		SET name = $1, description = $2, times_started = $3, times_completed = $4, updated_at = $5
+		WHERE id = $6
+		RETURNING updated_at`
+
+	args := []any{
+		test.Name,
+		test.Description,
+		test.TimesStarted,
+		test.TimesCompleted,
+		test.UpdatedAt,
+		test.ID,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&test.UpdatedAt)
+	if err != nil {
+		if err.Error() == "pq: duplicate key value violates unique constraint \"tests_name_key\"" {
+			return ErrDuplicateName
+		} else if err.Error() == "sql: no rows in result set" {
+			return ErrEditConflict
+		}
+		return err
+	}
+
+	return nil
 }
