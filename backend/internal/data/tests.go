@@ -1,11 +1,17 @@
 package data
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/deferet/exam-crack/internal/validator"
 	"github.com/google/uuid"
+)
+
+var (
+	ErrDuplicateName = errors.New("duplicate name")
 )
 
 type Test struct {
@@ -41,4 +47,25 @@ func ValidateTest(v *validator.Validator, test *Test) {
 
 type TestModel struct {
 	DB *sql.DB
+}
+
+func (m TestModel) Insert(test *Test) error {
+	query := `
+		INSERT INTO tests (creator_id, name, description, times_started, times_completed, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id, created_at, updated_at`
+	args := []any{test.CreatorId, test.Name, test.Description, test.TimesStarted, test.TimesCompleted, test.CreatedAt, test.UpdatedAt}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&test.ID, &test.CreatedAt, &test.UpdatedAt)
+	if err != nil {
+		if err.Error() == "pq: duplicate key value violates unique constraint \"tests_name_key\"" {
+			return ErrDuplicateName
+		}
+		return err
+	}
+
+	return nil
 }
