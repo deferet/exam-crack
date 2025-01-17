@@ -18,7 +18,7 @@ type TestStarted struct {
 }
 
 // TODO: Add a Validate method to validate the data before it is saved to the database.
-func ValidateMovie(v *validator.Validator, testStarted *TestStarted) {
+func ValidateTestStarted(v *validator.Validator, testStarted *TestStarted) {
 	v.Check(testStarted.UserId.String() != "", "id", "must be provided")
 }
 
