@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/deferet/exam-crack/internal/data"
 	"github.com/deferet/exam-crack/internal/validator"
@@ -13,6 +15,7 @@ func (app *application) createTestHandler(w http.ResponseWriter, r *http.Request
 		CreatorId   uuid.UUID `json:"creatorId"`
 		Name        string    `json:"name"`
 		Description string    `json:"description"`
+		Categories  []string  `json:"categories"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -21,10 +24,18 @@ func (app *application) createTestHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	description := sql.NullString{String: input.Description, Valid: input.Description != ""}
+
 	test := &data.Test{
-		CreatorId:   input.CreatorId,
-		Name:        input.Name,
-		Description: input.Description,
+		ID:             uuid.New(),
+		CreatorId:      input.CreatorId,
+		Name:           input.Name,
+		Description:    description,
+		TimesStarted:   0,
+		TimesCompleted: 0,
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
+		Categories:     input.Categories,
 	}
 
 	v := validator.New()

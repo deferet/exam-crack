@@ -8,6 +8,7 @@ import (
 
 	"github.com/deferet/exam-crack/internal/validator"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 var (
@@ -15,14 +16,15 @@ var (
 )
 
 type Test struct {
-	ID             uuid.UUID `json:"id"`
-	CreatorId      uuid.UUID `json:"creatorId"`
-	Name           string    `json:"name"`
-	Description    string    `json:"description"`
-	TimesStarted   int       `json:"timesStarted"`
-	TimesCompleted int       `json:"timesCompleted"`
-	CreatedAt      time.Time `json:"createdAt"`
-	UpdatedAt      time.Time `json:"updatedAt"`
+	ID             uuid.UUID      `json:"id"`
+	CreatorId      uuid.UUID      `json:"creatorId"`
+	Name           string         `json:"name"`
+	Description    sql.NullString `json:"description"`
+	TimesStarted   int            `json:"timesStarted"`
+	TimesCompleted int            `json:"timesCompleted"`
+	Categories     []string       `json:"categories"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	UpdatedAt      time.Time      `json:"updatedAt"`
 }
 
 func ValidateTest(v *validator.Validator, test *Test) {
@@ -32,7 +34,7 @@ func ValidateTest(v *validator.Validator, test *Test) {
 	v.Check(len(test.Name) <= 50, "name", "must not be more than 50 characters long")
 	v.Check(len(test.Name) >= 3, "name", "must be at least 3 characters long")
 
-	v.Check(len(test.Description) <= 500, "description", "must not be more than 500 characters long")
+	v.Check(len(test.Description.String) <= 500, "description", "must not be more than 500 characters long")
 
 	v.Check(test.TimesStarted >= 0, "timesStarted", "must be a positive integer")
 
@@ -42,7 +44,10 @@ func ValidateTest(v *validator.Validator, test *Test) {
 	v.Check(!test.CreatedAt.IsZero(), "createdAt", "must be provided")
 
 	v.Check(!test.UpdatedAt.IsZero(), "updatedAt", "must be provided")
-	v.Check(test.UpdatedAt.Before(test.CreatedAt), "updatedAt", "must be after createdAt")
+	v.Check(test.UpdatedAt.After(test.CreatedAt), "updatedAt", "must be after createdAt")
+
+	v.Check(len(test.Categories) > 0, "categories", "must contain at least one category")
+	v.Check(len(test.Categories) <= 5, "categories", "must not contain more than 5 categories")
 }
 
 type TestModel struct {
@@ -51,15 +56,16 @@ type TestModel struct {
 
 func (m TestModel) Insert(test *Test) error {
 	query := `
-		INSERT INTO tests (creator_id, name, description, times_started, times_completed, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		RETURNING id, created_at, updated_at`
+		INSERT INTO tests (creator_id, name, description, times_started, times_completed, categories, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+
 	args := []any{
 		test.CreatorId,
 		test.Name,
 		test.Description,
 		test.TimesStarted,
 		test.TimesCompleted,
+		pq.Array(test.Categories),
 		test.CreatedAt,
 		test.UpdatedAt,
 	}
@@ -67,7 +73,7 @@ func (m TestModel) Insert(test *Test) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&test.ID, &test.CreatedAt, &test.UpdatedAt)
+	err := m.DB.QueryRowContext(ctx, query, args...).Err()
 	if err != nil {
 		if err.Error() == "pq: duplicate key value violates unique constraint \"tests_name_key\"" {
 			return ErrDuplicateName
@@ -96,6 +102,7 @@ func (m TestModel) GetByName(name string) (*Test, error) {
 		&test.Description,
 		&test.TimesStarted,
 		&test.TimesCompleted,
+		&test.Categories,
 		&test.CreatedAt,
 		&test.UpdatedAt,
 	)
@@ -136,6 +143,7 @@ func (m TestModel) GetAll() ([]*Test, error) {
 			&test.Description,
 			&test.TimesStarted,
 			&test.TimesCompleted,
+			&test.Categories,
 			&test.CreatedAt,
 			&test.UpdatedAt,
 		)
@@ -165,6 +173,7 @@ func (m TestModel) Update(test *Test) error {
 		test.Description,
 		test.TimesStarted,
 		test.TimesCompleted,
+		test.Categories,
 		test.UpdatedAt,
 		test.ID,
 	}
