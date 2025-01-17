@@ -69,3 +69,22 @@ func (m TestModel) Insert(test *Test) error {
 
 	return nil
 }
+
+func (m TestModel) GetByName(name string) (*Test, error) {
+	test := &Test{}
+
+	query := `
+		SELECT id, creator_id, name, description, times_started, times_completed, created_at, updated_at
+		FROM tests
+		WHERE name = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, name).Scan(&test.ID, &test.CreatorId, &test.Name, &test.Description, &test.TimesStarted, &test.TimesCompleted, &test.CreatedAt, &test.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return test, nil
+}
