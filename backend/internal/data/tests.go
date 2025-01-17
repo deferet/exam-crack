@@ -110,6 +110,49 @@ func (m TestModel) GetByName(name string) (*Test, error) {
 	return test, nil
 }
 
+func (m TestModel) GetAll() ([]*Test, error) {
+	tests := []*Test{}
+
+	query := `
+		SELECT id, creator_id, name, description, times_started, times_completed, created_at, updated_at
+		FROM tests`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		test := &Test{}
+
+		err := rows.Scan(
+			&test.ID,
+			&test.CreatorId,
+			&test.Name,
+			&test.Description,
+			&test.TimesStarted,
+			&test.TimesCompleted,
+			&test.CreatedAt,
+			&test.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		tests = append(tests, test)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return tests, nil
+}
+
 func (m TestModel) Update(test *Test) error {
 	query := `
 		UPDATE tests
