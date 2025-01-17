@@ -12,6 +12,7 @@ func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
 	router.HandlerFunc("GET", "/v1/healthcheck", app.healthcheckHandler)
+	router.HandlerFunc("POST", "/v1/tests", app.createTestHandler)
 	// TODO - Add panic recovery middleware
 	return router
 }
