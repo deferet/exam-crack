@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
@@ -60,6 +61,28 @@ func (app *application) createTestHandler(w http.ResponseWriter, r *http.Request
 	headers.Set("Location", "/v1/tests/"+test.ID.String())
 
 	err = app.writeJSON(w, http.StatusCreated, envelope{"test": test}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) showTestHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
+
+	test, err := app.models.Tests.GetById(id)
+	if err != nil {
+		if errors.Is(err, data.ErrRecordNotFound) {
+			app.badRequestResponse(w, r, err)
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"test": test}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

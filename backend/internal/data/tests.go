@@ -84,18 +84,18 @@ func (m TestModel) Insert(test *Test) error {
 	return nil
 }
 
-func (m TestModel) GetByName(name string) (*Test, error) {
+func (m TestModel) GetById(id uuid.UUID) (*Test, error) {
 	test := &Test{}
 
 	query := `
 		SELECT id, creator_id, name, description, times_started, times_completed, created_at, updated_at
 		FROM tests
-		WHERE name = $1`
+		WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, name).Scan(
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
 		&test.ID,
 		&test.CreatorId,
 		&test.Name,
