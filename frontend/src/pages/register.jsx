@@ -8,35 +8,63 @@ const Register = () => {
     confirmPassword: '',
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Sprawdzenie, czy hasła są takie same
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    setError(''); // Resetowanie błędu, jeśli wszystko jest w porządku
-    console.log('Form submitted:', formData);
+    setError('');
+    setLoading(true);
 
-    // Dalsze przetwarzanie formularza...
+    try {
+      const response = await fetch('http://localhost:4000/v1/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.errors) {
+          setError(Object.values(errorData.errors).join(' '));
+        } else {
+          setError('An error occurred while registering. Please try again.');
+        }
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Registration successful:', data);
+      alert('Registration successful! You can now log in.');
+    } catch (err) {
+      console.error('Error:', err);
+      setError('Something went wrong. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="bg-gray-900 text-white min-h-screen p-12 flex flex-col items-center">
-      {/* Header */}
       <div className="max-w-lg text-center mb-8">
         <h1 className="text-4xl font-bold">THE NEXT GENERATION OF LEARNING</h1>
       </div>
-
-      {/* Registration Form */}
       <div className="bg-gray-800 p-8 rounded-lg max-w-md w-full">
         <h2 className="text-2xl mb-6 text-center">Exam Crack</h2>
         <form onSubmit={handleSubmit}>
@@ -92,8 +120,9 @@ const Register = () => {
           <button
             type="submit"
             className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded text-white font-semibold"
+            disabled={loading}
           >
-            Sign up
+            {loading ? 'Submitting...' : 'Sign up'}
           </button>
         </form>
       </div>
