@@ -7,6 +7,9 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/google/uuid"
+	"github.com/julienschmidt/httprouter"
 )
 
 // Define a custom type called envelope which envelops the response data.
@@ -91,4 +94,15 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 	}
 
 	return nil
+}
+
+func (app *application) readIDParam(r *http.Request) (uuid.UUID, error) {
+	params := httprouter.ParamsFromContext(r.Context())
+
+	id, err := uuid.FromBytes([]byte(params.ByName("id")))
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return id, nil
 }
