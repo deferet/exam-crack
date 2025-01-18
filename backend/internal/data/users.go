@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/deferet/exam-crack/internal/validator"
+	"github.com/google/uuid"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,7 +21,7 @@ var (
 var AnonymousUser = &User{}
 
 type User struct {
-	ID        int64     `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	UserType  string    `json:"user_type"`
 	Email     string    `json:"email"`
 	Password  password  `json:"-"`

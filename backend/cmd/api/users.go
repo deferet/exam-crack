@@ -1,0 +1,76 @@
+package main
+
+import (
+	"errors"
+	"net/http"
+	"time"
+
+	"github.com/deferet/exam-crack/internal/data"
+	"github.com/deferet/exam-crack/internal/validator"
+	"github.com/google/uuid"
+)
+
+func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Username string `json:"username"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		UserType string `json:"user_type"`
+		Name     string `json:"name"`
+		Surname  string `json:"surname"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if input.UserType == "" {
+		input.UserType = "standard"
+	}
+
+	user := &data.User{
+		ID:        uuid.New(),
+		UserType:  input.UserType,
+		Username:  input.Username,
+		Email:     input.Email,
+		Name:      input.Name,
+		Surname:   input.Surname,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	}
+
+	err = user.Password.Set(input.Password)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+
+	if data.ValidateUser(v, user); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	err = app.models.Users.Insert(user)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrDuplicateEmail):
+			v.AddError("email", "a user with this email address already exists")
+			app.failedValidationResponse(w, r, v.Errors)
+		case errors.Is(err, data.ErrDuplicateUsername):
+			v.AddError("username", "this username is already taken")
+			app.failedValidationResponse(w, r, v.Errors)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
