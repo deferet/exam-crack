@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"errors"
 	"time"
@@ -101,7 +102,7 @@ type UserModel struct {
 
 func (m UserModel) Insert(user *User) error {
 	query := `
-        INSERT INTO users (id, user_type, email, password_hash, username, name, surname, created_at, updated_at) 
+        INSERT INTO users (id, user_type, email, hashed_password, username, name, surname, created_at, updated_at) 
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING id, created_at, version`
 
@@ -133,4 +134,115 @@ func (m UserModel) Insert(user *User) error {
 	}
 
 	return nil
+}
+
+func (m UserModel) GetByEmail(email string) (*User, error) {
+	query := `
+        SELECT id, user_type, email, hashed_password, username, name, surname, created_at, updated_at
+        FROM users
+        WHERE email = $1`
+
+	var user User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, email).Scan(
+		&user.ID,
+		&user.UserType,
+		&user.Email,
+		&user.Password.hash,
+		&user.Username,
+		&user.Name,
+		&user.Surname,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
+}
+
+func (m UserModel) Update(user *User) error {
+	query := `
+        UPDATE users 
+        SET UserType = $1, email = $2, hashed_password = $3, username = $4, name = $5, surname = $6
+        WHERE id = $7
+        RETURNING version`
+
+	args := []any{
+		user.UserType,
+		user.Email,
+		user.Password.hash,
+		user.Username,
+		user.Name,
+		user.Surname,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Err()
+	if err != nil {
+		switch {
+		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
+			return ErrDuplicateEmail
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error) {
+	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
+
+	query := `
+        SELECT users.id, users.user_type, users.email, users.hashed_password, users.username, users.name, users.surname, users.created_at, users.updated_at
+        FROM users
+        INNER JOIN tokens
+        ON users.id = tokens.user_id
+        WHERE tokens.hash = $1
+        AND tokens.scope = $2 
+        AND tokens.expiry > $3`
+
+	args := []any{tokenHash[:], tokenScope, time.Now()}
+
+	var user User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(
+		&user.ID,
+		&user.UserType,
+		&user.Email,
+		&user.Password.hash,
+		&user.Username,
+		&user.Name,
+		&user.Surname,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
 }
