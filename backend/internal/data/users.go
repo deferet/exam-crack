@@ -105,7 +105,7 @@ func (m UserModel) Insert(user *User) error {
 	query := `
         INSERT INTO users (id, user_type, email, hashed_password, username, name, surname, created_at, updated_at) 
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING id, created_at, version`
+        RETURNING id, created_at, updated_at`
 
 	args := []any{
 		user.ID,
@@ -177,7 +177,7 @@ func (m UserModel) Update(user *User) error {
         UPDATE users 
         SET UserType = $1, email = $2, hashed_password = $3, username = $4, name = $5, surname = $6
         WHERE id = $7
-        RETURNING version`
+        RETURNING updated_at`
 
 	args := []any{
 		user.UserType,
