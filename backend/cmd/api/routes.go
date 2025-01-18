@@ -15,6 +15,8 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc("POST", "/v1/tests", app.createTestHandler)
 	router.HandlerFunc("GET", "/v1/tests/:id", app.showTestHandler)
+	router.HandlerFunc("GET", "/v1/tests", app.listTestsHandler)
+
 	// TODO - Add panic recovery middleware
 	return router
 }

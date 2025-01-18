@@ -122,7 +122,7 @@ func (m TestModel) GetAll() ([]*Test, error) {
 	tests := []*Test{}
 
 	query := `
-		SELECT id, creator_id, name, description, times_started, times_completed, created_at, updated_at
+		SELECT id, creator_id, name, description, times_started, times_completed, categories, created_at, updated_at
 		FROM tests`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -144,7 +144,7 @@ func (m TestModel) GetAll() ([]*Test, error) {
 			&test.Description,
 			&test.TimesStarted,
 			&test.TimesCompleted,
-			&test.Categories,
+			pq.Array(&test.Categories),
 			&test.CreatedAt,
 			&test.UpdatedAt,
 		)
@@ -165,7 +165,7 @@ func (m TestModel) GetAll() ([]*Test, error) {
 func (m TestModel) Update(test *Test) error {
 	query := `
 		UPDATE tests
-		SET name = $1, description = $2, times_started = $3, times_completed = $4, updated_at = $5
+		SET name = $1, description = $2, times_started = $3, times_completed = $4, categories = $5, updated_at = $6
 		WHERE id = $6
 		RETURNING updated_at`
 
@@ -174,7 +174,7 @@ func (m TestModel) Update(test *Test) error {
 		test.Description,
 		test.TimesStarted,
 		test.TimesCompleted,
-		test.Categories,
+		pq.Array(&test.Categories),
 		test.UpdatedAt,
 		test.ID,
 	}

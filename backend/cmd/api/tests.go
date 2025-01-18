@@ -87,3 +87,16 @@ func (app *application) showTestHandler(w http.ResponseWriter, r *http.Request) 
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) listTestsHandler(w http.ResponseWriter, r *http.Request) {
+	tests, err := app.models.Tests.GetAll()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"tests": tests}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
