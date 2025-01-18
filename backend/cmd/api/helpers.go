@@ -99,7 +99,7 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 func (app *application) readIDParam(r *http.Request) (uuid.UUID, error) {
 	params := httprouter.ParamsFromContext(r.Context())
 
-	id, err := uuid.FromBytes([]byte(params.ByName("id")))
+	id, err := uuid.Parse(params.ByName("id"))
 	if err != nil {
 		return uuid.Nil, err
 	}

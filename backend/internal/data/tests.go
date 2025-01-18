@@ -88,7 +88,7 @@ func (m TestModel) GetById(id uuid.UUID) (*Test, error) {
 	test := &Test{}
 
 	query := `
-		SELECT id, creator_id, name, description, times_started, times_completed, created_at, updated_at
+		SELECT id, creator_id, name, description, times_started, times_completed, categories, created_at, updated_at
 		FROM tests
 		WHERE id = $1`
 
@@ -100,12 +100,13 @@ func (m TestModel) GetById(id uuid.UUID) (*Test, error) {
 		&test.CreatorId,
 		&test.Name,
 		&test.Description,
-		&test.TimesStarted,
 		&test.TimesCompleted,
-		&test.Categories,
+		&test.TimesStarted,
+		pq.Array(&test.Categories),
 		&test.CreatedAt,
 		&test.UpdatedAt,
 	)
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrRecordNotFound
