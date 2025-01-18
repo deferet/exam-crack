@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -11,7 +12,8 @@ import (
 )
 
 var (
-	ErrDuplicateEmail = errors.New("duplicate email")
+	ErrDuplicateEmail    = errors.New("duplicate email")
+	ErrDuplicateUsername = errors.New("duplicate username")
 )
 
 var AnonymousUser = &User{}
@@ -78,13 +80,9 @@ func ValidateUser(v *validator.Validator, user *User) {
 	v.Check(user.Username != "", "name", "must be provided")
 	v.Check(len(user.Username) <= 500, "name", "must not be more than 500 bytes long")
 
-	if user.Name != "" {
-		v.Check(len(user.Name) <= 50, "name", "must not be more than 500 bytes long")
-	}
+	v.Check(len(user.Name) <= 50, "name", "must not be more than 500 bytes long")
 
-	if user.Surname != "" {
-		v.Check(len(user.Surname) <= 50, "surname", "must not be more than 500 bytes long")
-	}
+	v.Check(len(user.Surname) <= 50, "surname", "must not be more than 500 bytes long")
 
 	ValidateEmail(v, user.Email)
 
@@ -99,4 +97,40 @@ func ValidateUser(v *validator.Validator, user *User) {
 
 type UserModel struct {
 	DB *sql.DB
+}
+
+func (m UserModel) Insert(user *User) error {
+	query := `
+        INSERT INTO users (id, user_type, email, password_hash, username, name, surname, created_at, updated_at) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING id, created_at, version`
+
+	args := []any{
+		user.ID,
+		user.UserType,
+		user.Email,
+		user.Password.hash,
+		user.Username,
+		user.Name,
+		user.Surname,
+		user.CreatedAt,
+		user.UpdatedAt,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Err()
+	if err != nil {
+		switch {
+		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
+			return ErrDuplicateEmail
+		case err.Error() == `pq: duplicate key value violates unique constraint "users_username_key"`:
+			return ErrDuplicateUsername
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
