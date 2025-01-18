@@ -4,31 +4,28 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/rs/cors" // Import for CORS middleware
 )
 
-
-
-// Function routes is used to define the application routes.
-// It returns an http.Handler interface which the server can use to listen for incoming HTTP requests.
-
+// routes defines application routes and middleware.
 func (app *application) routes() http.Handler {
-    router := httprouter.New()
+	router := httprouter.New()
 
-    router.HandlerFunc("GET", "/v1/healthcheck", app.healthcheckHandler)
-    router.HandlerFunc("POST", "/v1/login", app.loginHandler)
+	// Define routes.
+	router.HandlerFunc("GET", "/v1/healthcheck", app.healthcheckHandler)
+	router.HandlerFunc("POST", "/v1/login", app.loginHandler)
 
-    // Zastosuj middleware CORS
-    corsHandler := app.enableCORS(router)
-    return corsHandler
+	// Apply CORS middleware.
+	return app.enableCORS(router)
 }
 
-
+// enableCORS sets up CORS for the application.
 func (app *application) enableCORS(next http.Handler) http.Handler {
-    corsHandler := cors.New(cors.Options{
-        AllowedOrigins:   []string{"http://localhost:5173"}, // Frontend URL
-        AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-        AllowedHeaders:   []string{"Authorization", "Content-Type"},
-        AllowCredentials: true,
-    })
-
-    return corsHandler.Handler(next)
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, // Frontend URL
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+	})
+	return corsHandler.Handler(next)
+}

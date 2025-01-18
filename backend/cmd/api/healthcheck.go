@@ -1,9 +1,8 @@
 package main
 
-import (
-	"net/http"
-)
+import "net/http"
 
+// healthcheckHandler provides basic information about the API status.
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	data := envelope{
 		"status":      "available",

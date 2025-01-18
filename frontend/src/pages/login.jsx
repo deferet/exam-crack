@@ -1,11 +1,3 @@
-// Changes made to the original code:
-// 1. Added `useState` and `useNavigate` hooks to manage email, password, and navigation logic.
-// 2. Implemented a basic login simulation using hardcoded credentials ("test@example.com" and "password").
-//    This temporary solution allows you to test the navbar functionality for a logged-in user.
-// 3. If login is successful, user data is saved in `localStorage` to simulate a session.
-// 4. The `handleLogin` function was added to validate the login credentials and navigate to `/mytests` upon success.
-// 5. The login form now prevents the default form submission and calls `handleLogin` for logic execution.
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,17 +7,32 @@ const Login = () => {
     const navigate = useNavigate();
 
     const handleLogin = async () => {
-        // Temporary simulation of login functionality for testing navbar
-        if (email === "test@example.com" && password === "password") {
-            // Store login status and username in localStorage to simulate a session
-            localStorage.setItem("isLoggedIn", "true");
-            localStorage.setItem("userName", "Test User");
-            alert("Logged in successfully!");
-            navigate("/mytests"); // Redirect to MyTests page
-            return;
-        }
+        try {
+            // Wysyłanie żądania do backendu
+            const response = await fetch("http://localhost:4000/v1/login", { // Zastąp port swoim, jeśli inny
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }), // Dane wysyłane w JSON
+            });
 
-        alert("Invalid email or password."); // Handle invalid credentials
+            if (!response.ok) {
+                throw new Error("Invalid login credentials");
+            }
+
+            // Odczyt odpowiedzi JSON z backendu
+            const data = await response.json();
+
+            // Przechowaj token i nazwę użytkownika w localStorage (symulacja sesji)
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("userName", data.userName);
+
+            alert("Logged in successfully!");
+            navigate("/mytests"); // Przekierowanie na stronę z testami
+        } catch (error) {
+            alert(error.message); // Wyświetlenie błędu logowania
+        }
     };
 
     return (
@@ -40,8 +47,8 @@ const Login = () => {
                 <h2 className="text-2xl mb-4 text-center">Exam Crack</h2>
                 <form
                     onSubmit={(e) => {
-                        e.preventDefault(); // Prevent default form submission
-                        handleLogin(); // Call the login handler
+                        e.preventDefault(); // Zapobiega domyślnej akcji
+                        handleLogin(); // Obsługuje logowanie
                     }}
                 >
                     <div className="mb-4">
@@ -52,7 +59,7 @@ const Login = () => {
                             className="w-full p-3 rounded-md border border-gray-400 bg-gray-700 text-white"
                             required
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)} // Update email state
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <div className="mb-4">
@@ -63,7 +70,7 @@ const Login = () => {
                             className="w-full p-3 rounded-md border border-gray-400 bg-gray-700 text-white"
                             required
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)} // Update password state
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
                     <button
