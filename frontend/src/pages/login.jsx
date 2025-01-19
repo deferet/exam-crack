@@ -1,47 +1,51 @@
-// Changes made to the original code:
-// 1. Added `useState` and `useNavigate` hooks to manage email, password, and navigation logic.
-// 2. Implemented a basic login simulation using hardcoded credentials ("test@example.com" and "password").
-//    This temporary solution allows you to test the navbar functionality for a logged-in user.
-// 3. If login is successful, user data is saved in `localStorage` to simulate a session.
-// 4. The `handleLogin` function was added to validate the login credentials and navigate to `/mytests` upon success.
-// 5. The login form now prevents the default form submission and calls `handleLogin` for logic execution.
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleLogin = async () => {
-        // Temporary simulation of login functionality for testing navbar
-        if (email === "test@example.com" && password === "password") {
-            // Store login status and username in localStorage to simulate a session
-            localStorage.setItem("isLoggedIn", "true");
-            localStorage.setItem("userName", "Test User");
-            alert("Logged in successfully!");
-            navigate("/mytests"); // Redirect to MyTests page
-            return;
-        }
+        try {
+            const response = await fetch('http://localhost:4000/v1/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-        alert("Invalid email or password."); // Handle invalid credentials
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || 'Invalid email or password.');
+                return;
+            }
+
+            const data = await response.json();
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userName', data.user.name);
+            alert('Logged in successfully!');
+            navigate('/mytests');
+        } catch (error) {
+            console.error('Login failed:', error);
+            setError('Something went wrong. Please try again.');
+        }
     };
 
     return (
         <div className="bg-gray-900 text-white min-h-screen p-12 pt-16 flex flex-col items-center font-sans">
-            {/* Header */}
             <div className="max-w-xl text-center mb-8">
                 <h1 className="text-4xl font-bold">THE NEXT GENERATION OF LEARNING</h1>
             </div>
-
-            {/* Login form */}
             <div className="max-w-md w-full p-12 bg-gray-800 rounded-lg">
                 <h2 className="text-2xl mb-4 text-center">Exam Crack</h2>
                 <form
                     onSubmit={(e) => {
-                        e.preventDefault(); // Prevent default form submission
-                        handleLogin(); // Call the login handler
+                        e.preventDefault();
+                        handleLogin();
                     }}
                 >
                     <div className="mb-4">
@@ -52,7 +56,7 @@ const Login = () => {
                             className="w-full p-3 rounded-md border border-gray-400 bg-gray-700 text-white"
                             required
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)} // Update email state
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <div className="mb-4">
@@ -63,9 +67,10 @@ const Login = () => {
                             className="w-full p-3 rounded-md border border-gray-400 bg-gray-700 text-white"
                             required
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)} // Update password state
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
+                    {error && <p className="text-red-500 text-center mb-4">{error}</p>}
                     <button
                         type="submit"
                         className="w-full p-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-lg"
