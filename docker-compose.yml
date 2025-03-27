@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    environment:
+      EXAMCRACK_DB_DSN: "postgres://examcrack:examcrack@db:5432/examcrack?sslmode=disable"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: examcrack
+      POSTGRES_PASSWORD: examcrack
+      POSTGRES_DB: examcrack
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      - db
+    volumes:
+      - ./backend/migrations:/migrations
+    command: [
+      "-path", "/migrations",
+      "-database", "postgres://examcrack:examcrack@db:5432/examcrack?sslmode=disable",
+      "up"
+    ]
+
+volumes:
+  postgres_data:

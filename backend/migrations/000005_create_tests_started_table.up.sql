@@ -4,6 +4,6 @@ CREATE TABLE IF NOT EXISTS tests_started (
     test_id uuid NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
     progress integer NOT NULL DEFAULT 0,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
-    updated_at timestamp with time zone NOT NULL DEFAULT now()
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     UNIQUE (user_id, test_id)
 );
