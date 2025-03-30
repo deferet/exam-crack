@@ -22,14 +22,14 @@ var AnonymousUser = &User{}
 
 type User struct {
 	ID        uuid.UUID `json:"id"`
-	UserType  string    `json:"user_type"`
+	UserType  string    `json:"userType"`
 	Email     string    `json:"email"`
 	Password  password  `json:"-"`
 	Username  string    `json:"username"`
 	Name      string    `json:"name"`
 	Surname   string    `json:"surname"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (u *User) IsAnonymous() bool {

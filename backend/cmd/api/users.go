@@ -15,7 +15,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Username string `json:"username"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
-		UserType string `json:"user_type"`
+		UserType string `json:"userType"`
 		Name     string `json:"name"`
 		Surname  string `json:"surname"`
 	}
@@ -26,9 +26,9 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if input.UserType == "" {
-		input.UserType = "standard"
-	}
+	// temporarily set user type to standard
+	// update this later once different user types are implemented
+	input.UserType = "standard"
 
 	user := &data.User{
 		ID:        uuid.New(),
