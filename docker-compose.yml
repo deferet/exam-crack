@@ -2,13 +2,17 @@ version: '3.9'
 
 services:
   backend:
-    build: ./backend
+    build: 
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
       - "4000:4000"
     depends_on:
       - db
     environment:
-      EXAMCRACK_DB_DSN: "postgres://examcrack:examcrack@db:5432/examcrack?sslmode=disable"
+      - EXAMCRACK_DB_DSN=postgres://examcrack:examcrack@db:5432/examcrack?sslmode=disable
+      - DB_HOST=db
+      - DB_PORT=5432
 
   frontend:
     build: ./frontend
