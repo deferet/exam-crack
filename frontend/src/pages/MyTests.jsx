@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import SolveTest from "./SolveTest";
-import MatchingGame from "./MatchingGame";
+import React, { useEffect, useState } from "react";
+import { Route, BrowserRouter as Router, Routes, useNavigate } from "react-router-dom";
 import LearningMode from "./LearningMode";
+import MatchingGame from "./MatchingGame";
+import SolveTest from "./SolveTest";
 
 const MyTests = () => {
   const [tests, setTests] = useState([]);
@@ -10,12 +11,23 @@ const MyTests = () => {
   const [currentQuestion, setCurrentQuestion] = useState({ question: "", answer: "" });
   const [isAddingQuestions, setIsAddingQuestions] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
-  const [mode, setMode] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [editingTest, setEditingTest] = useState(null);
   const [newQuestion, setNewQuestion] = useState({ question: "", answer: "" });
+  const navigate = useNavigate();
 
-  // New UseEffect Hook for Authorization
+  // Load tests from localStorage on mount
+  useEffect(() => {
+    const savedTests = JSON.parse(localStorage.getItem("tests")) || [];
+    setTests(savedTests);
+  }, []);
+
+  // Save tests to localStorage on update
+  useEffect(() => {
+    localStorage.setItem("tests", JSON.stringify(tests));
+  }, [tests]);
+
+  // Authorization check
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (!isLoggedIn) {
@@ -103,6 +115,11 @@ const MyTests = () => {
     setEditingTest(null);
   };
 
+  const handleNavigateToMode = (test, mode) => {
+    setSelectedTest(test);
+    navigate(`/${mode}`);
+  };
+
   if (editingTest) {
     return (
       <div className="bg-[#0f172a] min-h-screen flex flex-col items-center py-12 px-6 text-white">
@@ -160,33 +177,6 @@ const MyTests = () => {
         </div>
       </div>
     );
-  }
-
-  if (selectedTest && mode) {
-    switch (mode) {
-      case "solve":
-        return (
-          <SolveTest test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />
-        );
-      case "matching":
-        return (
-          <MatchingGame
-            test={selectedTest}
-            setMode={setMode}
-            setSelectedTest={setSelectedTest}
-          />
-        );
-      case "learning":
-        return (
-          <LearningMode
-            test={selectedTest}
-            setMode={setMode}
-            setSelectedTest={setSelectedTest}
-          />
-        );
-      default:
-        break;
-    }
   }
 
   return (
@@ -273,28 +263,19 @@ const MyTests = () => {
                 <div className="flex gap-4 flex-wrap justify-center w-full">
                   <button
                     className="border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white px-4 py-2 rounded-lg"
-                    onClick={() => {
-                      setSelectedTest(test);
-                      setMode("solve");
-                    }}
+                    onClick={() => handleNavigateToMode(test, "solve")}
                   >
                     Solve Test
                   </button>
                   <button
                     className="border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-4 py-2 rounded-lg"
-                    onClick={() => {
-                      setSelectedTest(test);
-                      setMode("learning");
-                    }}
+                    onClick={() => handleNavigateToMode(test, "learning")}
                   >
                     Learning Mode
                   </button>
                   <button
                     className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-black px-4 py-2 rounded-lg"
-                    onClick={() => {
-                      setSelectedTest(test);
-                      setMode("matching");
-                    }}
+                    onClick={() => handleNavigateToMode(test, "matching")}
                   >
                     Matching Game
                   </button>
@@ -320,4 +301,15 @@ const MyTests = () => {
   );
 };
 
-export default MyTests;
+const App = () => (
+  <Router>
+    <Routes>
+      <Route path="/" element={<MyTests />} />
+      <Route path="/solve" element={<SolveTest />} />
+      <Route path="/matching" element={<MatchingGame />} />
+      <Route path="/learning" element={<LearningMode />} />
+    </Routes>
+  </Router>
+);
+
+export default App;
