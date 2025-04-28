@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import SolveTest from "./SolveTest";
 import MatchingGame from "./MatchingGame";
 import LearningMode from "./LearningMode";
+import MultipleChoiceMode from "./MultipleChoiceMode";
 
 const MyTests = () => {
   const [tests, setTests] = useState([]);
@@ -15,14 +16,7 @@ const MyTests = () => {
   const [editingTest, setEditingTest] = useState(null);
   const [newQuestion, setNewQuestion] = useState({ question: "", answer: "" });
 
-  // New UseEffect Hook for Authorization
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    if (!isLoggedIn) {
-      alert("You must be logged in to access this page.");
-      window.location.href = "/login";
-    }
-  }, []);
+  
 
   const handleStartAddingQuestions = () => {
     if (newTestName.trim() === "") {
@@ -170,19 +164,15 @@ const MyTests = () => {
         );
       case "matching":
         return (
-          <MatchingGame
-            test={selectedTest}
-            setMode={setMode}
-            setSelectedTest={setSelectedTest}
-          />
+          <MatchingGame test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />
         );
       case "learning":
         return (
-          <LearningMode
-            test={selectedTest}
-            setMode={setMode}
-            setSelectedTest={setSelectedTest}
-          />
+          <LearningMode test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />
+        );
+      case "multiple":
+        return (
+          <MultipleChoiceMode test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />
         );
       default:
         break;
@@ -192,7 +182,6 @@ const MyTests = () => {
   return (
     <div className="bg-[#0f172a] min-h-screen flex flex-col items-center py-12 px-6 text-white">
       <h1 className="text-4xl font-bold mb-8">My Tests</h1>
-
       {!isAddingQuestions ? (
         <div className="w-full max-w-md mb-6">
           <input
@@ -254,7 +243,6 @@ const MyTests = () => {
           </button>
         </div>
       )}
-
       <div className="w-full max-w-lg">
         {tests.length === 0 ? (
           <p className="text-center text-gray-300">
@@ -297,6 +285,19 @@ const MyTests = () => {
                     }}
                   >
                     Matching Game
+                  </button>
+                  <button
+                    className="border border-pink-400 text-pink-400 hover:bg-pink-400 hover:text-white px-4 py-2 rounded-lg"
+                    onClick={() => {
+                      if (test.questions.length < 4) {
+                        alert("Multiple choice mode requires at least 4 questions.");
+                        return;
+                      }
+                      setSelectedTest(test);
+                      setMode("multiple");
+                    }}
+                  >
+                    Multiple Choice
                   </button>
                   <button
                     className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-4 py-2 rounded-lg"
