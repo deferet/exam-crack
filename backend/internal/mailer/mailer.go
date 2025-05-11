@@ -33,6 +33,15 @@ func NewMailer(host string, port int, username, password, sender string) Mailer 
 	}
 }
 
+// Send() send an email to recipient using the specified template file and data.
+// It parses the template file from the embedded filesystem, executes it with the provided data,
+// and sends the email using the mail.Dialer. The email includes a subject, plain text body,
+// and HTML body. If any error occurs during the process, it returns the error.
+// The recipient parameter specifies the email address of the recipient.
+// The template file should contain three templates: "subject", "plainBody", and "htmlBody".
+// The "subject" template is used for the email subject, while "plainBody" and "htmlBody"
+// are used for the plain text and HTML bodies of the email, respectively.
+// The data parameter is used to populate the templates with dynamic content.
 func (m Mailer) Send(recipient, templateFile string, data any) error {
 	tmpl, err := template.New("email").ParseFS(templateFS, "templates/"+templateFile)
 	if err != nil {
