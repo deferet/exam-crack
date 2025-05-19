@@ -1,4 +1,3 @@
-import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Navbar from "./components/navbar";
 import Homepage from "./pages/homepage";
@@ -15,7 +14,7 @@ const App = () => {
                     <Route path="/" element={<Homepage />} />
                     <Route path="/mytests" element={<MyTests />} />
                     <Route path="/login" element={<Register />} />
-                    <Route path="/register" element={<Login />} />
+                    <Route path="/registe" element={<Login />} />
                 </Routes>
             </div>
         </Router>
