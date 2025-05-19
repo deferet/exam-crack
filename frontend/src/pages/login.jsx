@@ -4,9 +4,9 @@
 //    This temporary solution allows you to test the navbar functionality for a logged-in user.
 // 3. If login is successful, user data is saved in `localStorage` to simulate a session.
 // 4. The `handleLogin` function was added to validate the login credentials and navigate to `/mytests` upon success.
-// 5. The login form now prevents the default form submission and calls `handleLogin` for logic execution.
+// 5. The login form now prevents the default form submission and calls `handleLogin` for logic execution. 
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
