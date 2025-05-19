@@ -15,8 +15,13 @@ const MyTests = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [editingTest, setEditingTest] = useState(null);
   const [newQuestion, setNewQuestion] = useState({ question: "", answer: "" });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("default");
+  const [openMenus, setOpenMenus] = useState({});
 
-  
+  const toggleMenu = (id) => {
+    setOpenMenus((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const handleStartAddingQuestions = () => {
     if (newTestName.trim() === "") {
@@ -32,7 +37,6 @@ const MyTests = () => {
       setErrorMessage("At least one question is required.");
       return;
     }
-
     setTests([...tests, { id: Date.now(), name: newTestName, questions }]);
     setNewTestName("");
     setQuestions([]);
@@ -45,12 +49,10 @@ const MyTests = () => {
       setErrorMessage("Both question and answer are required.");
       return;
     }
-
     if (questions.some((q) => q.question === currentQuestion.question)) {
       setErrorMessage("This question already exists.");
       return;
     }
-
     setQuestions([...questions, currentQuestion]);
     setCurrentQuestion({ question: "", answer: "" });
     setErrorMessage("");
@@ -81,12 +83,10 @@ const MyTests = () => {
       setErrorMessage("Both question and answer are required.");
       return;
     }
-
     if (editingTest.questions.some((q) => q.question === newQuestion.question)) {
       setErrorMessage("This question already exists in the test.");
       return;
     }
-
     setEditingTest({ ...editingTest, questions: [...editingTest.questions, newQuestion] });
     setNewQuestion({ question: "", answer: "" });
     setErrorMessage("");
@@ -97,13 +97,30 @@ const MyTests = () => {
     setEditingTest(null);
   };
 
+  const filteredAndSortedTests = tests
+    .filter((test) =>
+      test.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortBy === "name-desc") {
+        return b.name.localeCompare(a.name);
+      } else if (sortBy === "questions") {
+        return b.questions.length - a.questions.length;
+      } else if (sortBy === "questions-asc") {
+        return a.questions.length - b.questions.length;
+      }
+      return 0;
+    });
+
   if (editingTest) {
     return (
       <div className="bg-[#0f172a] min-h-screen flex flex-col items-center py-12 px-6 text-white">
         <h1 className="text-4xl font-bold mb-8">Edit Questions</h1>
         <div className="w-full max-w-lg mb-6">
           {editingTest.questions.map((q, index) => (
-            <div key={index} className="mb-4 p-4 bg-[#1e293b] rounded-lg">
+            <div key={index} className="mb-4 p-4 bg-[#1e293b] rounded-lg text-black">
               <input
                 type="text"
                 className="form-input mb-2 w-full"
@@ -128,7 +145,7 @@ const MyTests = () => {
               </button>
             </div>
           ))}
-          <div className="p-4 bg-[#1e293b] rounded-lg mb-4">
+          <div className="p-4 bg-[#1e293b] rounded-lg mb-4 text-white">
             <h3 className="text-lg font-bold mb-2">Add New Question</h3>
             <input
               type="text"
@@ -159,21 +176,13 @@ const MyTests = () => {
   if (selectedTest && mode) {
     switch (mode) {
       case "solve":
-        return (
-          <SolveTest test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />
-        );
+        return <SolveTest test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />;
       case "matching":
-        return (
-          <MatchingGame test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />
-        );
+        return <MatchingGame test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />;
       case "learning":
-        return (
-          <LearningMode test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />
-        );
+        return <LearningMode test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />;
       case "multiple":
-        return (
-          <MultipleChoiceMode test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />
-        );
+        return <MultipleChoiceMode test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />;
       default:
         break;
     }
@@ -243,75 +252,102 @@ const MyTests = () => {
           </button>
         </div>
       )}
+      <div className="w-full max-w-lg mb-4 flex flex-col gap-2">
+        <input
+          type="text"
+          className="form-input text-black"
+          placeholder="Search by name"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className="form-select text-black"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          <option value="default">Sort: None</option>
+          <option value="name">Sort by Name (A-Z)</option>
+          <option value="name-desc">Sort by Name (Z-A)</option>
+          <option value="questions">Sort by Question Count (desc)</option>
+          <option value="questions-asc">Sort by Question Count (asc)</option>
+        </select>
+      </div>
       <div className="w-full max-w-lg">
-        {tests.length === 0 ? (
+        {filteredAndSortedTests.length === 0 ? (
           <p className="text-center text-gray-300">
             No tests available. Add a new test to get started!
           </p>
         ) : (
           <ul className="space-y-4">
-            {tests.map((test) => (
-              <li
-                key={test.id}
-                className="flex flex-col items-start bg-[#1e293b] p-4 rounded-lg"
-              >
-                <span className="font-bold mb-2 text-lg text-center w-full block">
-                  {test.name}
-                </span>
-                <div className="flex gap-4 flex-wrap justify-center w-full">
+            {filteredAndSortedTests.map((test) => (
+              <li key={test.id} className="bg-[#1e293b] p-4 rounded-lg text-white">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-bold text-lg">
+                    {test.name} ({test.questions.length} questions)
+                  </span>
                   <button
-                    className="border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white px-4 py-2 rounded-lg"
-                    onClick={() => {
-                      setSelectedTest(test);
-                      setMode("solve");
-                    }}
+                    onClick={() => toggleMenu(test.id)}
+                    className="px-3 py-1 border border-white rounded hover:bg-white hover:text-black"
                   >
-                    Solve Test
-                  </button>
-                  <button
-                    className="border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-4 py-2 rounded-lg"
-                    onClick={() => {
-                      setSelectedTest(test);
-                      setMode("learning");
-                    }}
-                  >
-                    Learning Mode
-                  </button>
-                  <button
-                    className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-black px-4 py-2 rounded-lg"
-                    onClick={() => {
-                      setSelectedTest(test);
-                      setMode("matching");
-                    }}
-                  >
-                    Matching Game
-                  </button>
-                  <button
-                    className="border border-pink-400 text-pink-400 hover:bg-pink-400 hover:text-white px-4 py-2 rounded-lg"
-                    onClick={() => {
-                      if (test.questions.length < 4) {
-                        alert("Multiple choice mode requires at least 4 questions.");
-                        return;
-                      }
-                      setSelectedTest(test);
-                      setMode("multiple");
-                    }}
-                  >
-                    Multiple Choice
-                  </button>
-                  <button
-                    className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-4 py-2 rounded-lg"
-                    onClick={() => handleEditQuestions(test)}
-                  >
-                    Browse/Edit Questions
-                  </button>
-                  <button
-                    className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-white px-4 py-2 rounded-lg"
-                    onClick={() => handleDeleteTest(test.id)}
-                  >
-                    Delete
+                    Menu
                   </button>
                 </div>
+                {openMenus[test.id] && (
+                  <div className="flex gap-4 flex-wrap justify-center">
+                    <button
+                      className="border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white px-4 py-2 rounded-lg"
+                      onClick={() => {
+                        setSelectedTest(test);
+                        setMode("solve");
+                      }}
+                    >
+                      Solve Test
+                    </button>
+                    <button
+                      className="border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-4 py-2 rounded-lg"
+                      onClick={() => {
+                        setSelectedTest(test);
+                        setMode("learning");
+                      }}
+                    >
+                      Learning Mode
+                    </button>
+                    <button
+                      className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-black px-4 py-2 rounded-lg"
+                      onClick={() => {
+                        setSelectedTest(test);
+                        setMode("matching");
+                      }}
+                    >
+                      Matching Game
+                    </button>
+                    <button
+                      className="border border-pink-400 text-pink-400 hover:bg-pink-400 hover:text-white px-4 py-2 rounded-lg"
+                      onClick={() => {
+                        if (test.questions.length < 4) {
+                          alert("Multiple choice mode requires at least 4 questions.");
+                          return;
+                        }
+                        setSelectedTest(test);
+                        setMode("multiple");
+                      }}
+                    >
+                      Multiple Choice
+                    </button>
+                    <button
+                      className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-4 py-2 rounded-lg"
+                      onClick={() => handleEditQuestions(test)}
+                    >
+                      Browse/Edit Questions
+                    </button>
+                    <button
+                      className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-white px-4 py-2 rounded-lg"
+                      onClick={() => handleDeleteTest(test.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
