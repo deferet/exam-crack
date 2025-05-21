@@ -18,6 +18,9 @@ const MyTests = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("default");
   const [openMenus, setOpenMenus] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const testsPerPage = 5;
+  const maxTests = 15;
 
   const toggleMenu = (id) => {
     setOpenMenus((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -35,6 +38,10 @@ const MyTests = () => {
   const handleAddTest = () => {
     if (questions.length === 0) {
       setErrorMessage("At least one question is required.");
+      return;
+    }
+    if (tests.length >= maxTests) {
+      setErrorMessage("Maximum of 15 tests reached.");
       return;
     }
     setTests([...tests, { id: Date.now(), name: newTestName, questions }]);
@@ -98,21 +105,26 @@ const MyTests = () => {
   };
 
   const filteredAndSortedTests = tests
-    .filter((test) =>
-      test.name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    .filter((test) => test.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
-      if (sortBy === "name") {
-        return a.name.localeCompare(b.name);
-      } else if (sortBy === "name-desc") {
-        return b.name.localeCompare(a.name);
-      } else if (sortBy === "questions") {
-        return b.questions.length - a.questions.length;
-      } else if (sortBy === "questions-asc") {
-        return a.questions.length - b.questions.length;
-      }
+      if (sortBy === "name") return a.name.localeCompare(b.name);
+      if (sortBy === "name-desc") return b.name.localeCompare(a.name);
+      if (sortBy === "questions") return b.questions.length - a.questions.length;
+      if (sortBy === "questions-asc") return a.questions.length - b.questions.length;
       return 0;
     });
+
+  const totalPages = Math.ceil(filteredAndSortedTests.length / testsPerPage);
+  const paginatedTests = filteredAndSortedTests.slice(
+    (currentPage - 1) * testsPerPage,
+    currentPage * testsPerPage
+  );
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   if (editingTest) {
     return (
@@ -184,7 +196,7 @@ const MyTests = () => {
       case "multiple":
         return <MultipleChoiceMode test={selectedTest} setMode={setMode} setSelectedTest={setSelectedTest} />;
       default:
-        break;
+        return null;
     }
   }
 
@@ -273,13 +285,13 @@ const MyTests = () => {
         </select>
       </div>
       <div className="w-full max-w-lg">
-        {filteredAndSortedTests.length === 0 ? (
+        {paginatedTests.length === 0 ? (
           <p className="text-center text-gray-300">
             No tests available. Add a new test to get started!
           </p>
         ) : (
           <ul className="space-y-4">
-            {filteredAndSortedTests.map((test) => (
+            {paginatedTests.map((test) => (
               <li key={test.id} className="bg-[#1e293b] p-4 rounded-lg text-white">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-bold text-lg">
@@ -294,63 +306,44 @@ const MyTests = () => {
                 </div>
                 {openMenus[test.id] && (
                   <div className="flex gap-4 flex-wrap justify-center">
-                    <button
-                      className="border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white px-4 py-2 rounded-lg"
-                      onClick={() => {
-                        setSelectedTest(test);
-                        setMode("solve");
-                      }}
-                    >
-                      Solve Test
-                    </button>
-                    <button
-                      className="border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-4 py-2 rounded-lg"
-                      onClick={() => {
-                        setSelectedTest(test);
-                        setMode("learning");
-                      }}
-                    >
-                      Learning Mode
-                    </button>
-                    <button
-                      className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-black px-4 py-2 rounded-lg"
-                      onClick={() => {
-                        setSelectedTest(test);
-                        setMode("matching");
-                      }}
-                    >
-                      Matching Game
-                    </button>
-                    <button
-                      className="border border-pink-400 text-pink-400 hover:bg-pink-400 hover:text-white px-4 py-2 rounded-lg"
-                      onClick={() => {
-                        if (test.questions.length < 4) {
-                          alert("Multiple choice mode requires at least 4 questions.");
-                          return;
-                        }
-                        setSelectedTest(test);
-                        setMode("multiple");
-                      }}
-                    >
-                      Multiple Choice
-                    </button>
-                    <button
-                      className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-4 py-2 rounded-lg"
-                      onClick={() => handleEditQuestions(test)}
-                    >
-                      Browse/Edit Questions
-                    </button>
-                    <button
-                      className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-white px-4 py-2 rounded-lg"
-                      onClick={() => handleDeleteTest(test.id)}
-                    >
-                      Delete
-                    </button>
+                    <button className="border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white px-4 py-2 rounded-lg" onClick={() => { setSelectedTest(test); setMode("solve"); }}>Solve Test</button>
+                    <button className="border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-4 py-2 rounded-lg" onClick={() => { setSelectedTest(test); setMode("learning"); }}>Learning Mode</button>
+                    <button className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-black px-4 py-2 rounded-lg" onClick={() => { setSelectedTest(test); setMode("matching"); }}>Matching Game</button>
+                    <button className="border border-pink-400 text-pink-400 hover:bg-pink-400 hover:text-white px-4 py-2 rounded-lg" onClick={() => { if (test.questions.length < 4) { alert("Multiple choice mode requires at least 4 questions."); return; } setSelectedTest(test); setMode("multiple"); }}>Multiple Choice</button>
+                    <button className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-4 py-2 rounded-lg" onClick={() => handleEditQuestions(test)}>Browse/Edit Questions</button>
+                    <button className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-white px-4 py-2 rounded-lg" onClick={() => handleDeleteTest(test.id)}>Delete</button>
                   </div>
                 )}
               </li>
             ))}
           </ul>
+        )}
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-4">
+            <button
+              className="px-3 py-1 border rounded hover:bg-white hover:text-black disabled:opacity-50"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                className={`px-3 py-1 border rounded ${currentPage === i + 1 ? 'bg-white text-black font-bold' : 'hover:bg-white hover:text-black'}`}
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              className="px-3 py-1 border rounded hover:bg-white hover:text-black disabled:opacity-50"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         )}
       </div>
     </div>
