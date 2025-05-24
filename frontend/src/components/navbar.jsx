@@ -8,15 +8,16 @@ const Navbar = () => {
 
     const handleLogout = () => {
         localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("userName");
         alert("Logged out successfully!");
-        window.location.reload(); // Refresh the page to update the navbar
+        window.location.reload();
     };
 
     const handleMyTestsClick = (e) => {
         if (!isLoggedIn) {
             e.preventDefault();
             alert("You must be logged in to access My Tests.");
-            navigate("/login"); // Redirect to login
+            navigate("/login");
         }
     };
 
@@ -47,11 +48,7 @@ const Navbar = () => {
             >
                 <Link
                     to="/"
-                    className={`${
-                        location.pathname === "/"
-                            ? "bg-[#2563eb] text-white"
-                            : "bg-transparent text-white"
-                    } px-4 py-2 rounded cursor-pointer text-base font-bold hover:underline`}
+                    className={`${location.pathname === "/" ? "bg-[#2563eb]" : ""} px-4 py-2 rounded text-white hover:underline`}
                 >
                     Home
                 </Link>
@@ -59,14 +56,19 @@ const Navbar = () => {
                 <Link
                     to="/mytests"
                     onClick={handleMyTestsClick}
-                    className={`${
-                        location.pathname === "/mytests"
-                            ? "bg-[#2563eb] text-white"
-                            : "bg-transparent text-white"
-                    } px-4 py-2 rounded cursor-pointer text-base font-bold hover:underline`}
+                    className={`${location.pathname === "/mytests" ? "bg-[#2563eb]" : ""} px-4 py-2 rounded text-white hover:underline`}
                 >
                     MyTests
                 </Link>
+
+                {isLoggedIn && (
+                    <Link
+                        to="/dashboard"
+                        className={`${location.pathname === "/dashboard" ? "bg-[#2563eb]" : ""} px-4 py-2 rounded text-white hover:underline`}
+                    >
+                        Dashboard
+                    </Link>
+                )}
 
                 {isLoggedIn ? (
                     <button
@@ -79,21 +81,13 @@ const Navbar = () => {
                     <>
                         <Link
                             to="/login"
-                            className={`${
-                                location.pathname === "/login"
-                                    ? "bg-[#2563eb] text-white"
-                                    : "bg-transparent text-white"
-                            } px-4 py-2 rounded cursor-pointer text-base font-bold hover:underline`}
+                            className={`${location.pathname === "/login" ? "bg-[#2563eb]" : ""} px-4 py-2 rounded text-white hover:underline`}
                         >
                             Login
                         </Link>
                         <Link
                             to="/register"
-                            className={`${
-                                location.pathname === "/register"
-                                    ? "bg-[#2563eb] text-white"
-                                    : "bg-transparent text-white"
-                            } px-4 py-2 rounded cursor-pointer text-base font-bold hover:underline`}
+                            className={`${location.pathname === "/register" ? "bg-[#2563eb]" : ""} px-4 py-2 rounded text-white hover:underline`}
                         >
                             Register
                         </Link>
