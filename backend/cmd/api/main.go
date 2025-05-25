@@ -4,9 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -85,20 +83,11 @@ func main() {
 		mailer: mailer.NewMailer(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.config.port),
-		Handler:      app.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	err = app.serve()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
-
-	logger.Info("starting server", "addr", srv.Addr, "env", app.config.env)
-
-	err = srv.ListenAndServe()
-	logger.Error(err.Error())
-	os.Exit(1)
 }
 
 // Function openDB opens a connection pool to the PostgreSQL database.
