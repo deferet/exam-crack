@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/deferet/exam-crack/internal/data"
+	"github.com/deferet/exam-crack/internal/mailer"
 	_ "github.com/lib/pq"
 )
 
@@ -27,6 +28,13 @@ type config struct {
 		maxIdleConns int
 		maxIdleTime  time.Duration
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 // Define an application struct to hold the application-wide dependencies for the API.
@@ -35,6 +43,7 @@ type application struct {
 	logger *slog.Logger
 	models data.Models
 	wg     sync.WaitGroup
+	mailer mailer.Mailer
 }
 
 func main() {
@@ -49,6 +58,12 @@ func main() {
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.DurationVar(&cfg.db.maxIdleTime, "db-max-idle-time", 15*time.Minute, "PostgreSQL max idle time")
+
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 2525, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", "8505d2545d3f16", "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", "e0fe3b9391823c", "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Exam Crack <no-reply@examcrack.net>", "SMTP sender")
 
 	flag.Parse()
 
@@ -67,6 +82,7 @@ func main() {
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.NewMailer(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
 	srv := &http.Server{
