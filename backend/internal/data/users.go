@@ -41,6 +41,9 @@ type password struct {
 	hash      []byte
 }
 
+// Set sets the plaintext password and generates a hashed version of it.
+// It uses bcrypt to hash the password with a cost factor of 12.
+// If there is an error during hashing, it returns the error.
 func (p *password) Set(plaintextPassword string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12)
 	if err != nil {
@@ -53,6 +56,8 @@ func (p *password) Set(plaintextPassword string) error {
 	return nil
 }
 
+// Matches compares the provided plaintext password with the stored hashed password.
+// It returns true if they match, false if they do not, and an error if there is an issue during comparison.
 func (p *password) Matches(plaintextPassword string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword))
 	if err != nil {
@@ -67,17 +72,24 @@ func (p *password) Matches(plaintextPassword string) (bool, error) {
 	return true, nil
 }
 
+// ValidateEmail checks if the provided email is not empty and matches a valid email format.
 func ValidateEmail(v *validator.Validator, email string) {
 	v.Check(email != "", "email", "must be provided")
 	v.Check(validator.Matches(email, validator.EmailRX), "email", "must be a valid email address")
 }
 
+// ValidatePasswordPlaintext checks if the provided plaintext password is not empty,
+// has a minimum length of 8 bytes, and does not exceed 72 bytes in length.
 func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(password != "", "password", "must be provided")
 	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
 	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
 }
 
+// ValidateUser validates the fields of a User struct.
+// It checks that the username, name, and surname are not empty and do not exceed specified lengths.
+// It also validates the email format and checks the plaintext password if provided.
+// If the password hash is missing, it panics, indicating a programming error.
 func ValidateUser(v *validator.Validator, user *User) {
 	v.Check(user.Username != "", "name", "must be provided")
 	v.Check(len(user.Username) <= 500, "name", "must not be more than 500 bytes long")
