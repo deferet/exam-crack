@@ -73,9 +73,14 @@ func (m Mailer) Send(recipient, templateFile string, data any) error {
 	msg.SetBody("text/plain", plainBody.String())
 	msg.AddAlternative("text/html", htmlBody.String())
 
-	err = m.dialer.DialAndSend(msg)
-	if err != nil {
-		return err
+	// Attempt to send the email up to 3 times with a delay of 500ms between attempts.
+	for range 3 {
+		err = m.dialer.DialAndSend(msg)
+		if err == nil {
+			return nil
+		}
+
+		time.Sleep(500 * time.Millisecond) // Retry after 500ms
 	}
 
 	return nil
