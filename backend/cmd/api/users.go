@@ -30,6 +30,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	// update this later once different user types are implemented
 	input.UserType = "standard"
 
+	// Create a new user instance with the provided input data
 	user := &data.User{
 		ID:        uuid.New(),
 		UserType:  input.UserType,
@@ -49,11 +50,13 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	v := validator.New()
 
+	// Validate the user input using the data package's validation functions
 	if data.ValidateUser(v, user); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
+	// Insert the user into the database or return an error if it already exists
 	err = app.models.Users.Insert(user)
 	if err != nil {
 		switch {
@@ -69,13 +72,20 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
+	// Create a confirmation token for the user
+	token, err := app.models.Tokens.New(user.ID, 2*24*time.Hour, data.ScopeActivation)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
 	}
 
 	app.background((func() {
-		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
+		// For future use, additional data can be passed to the email template
+		data := map[string]any{
+			"activationToken": token.Plaintext,
+		}
+
+		err = app.mailer.Send(user.Email, "user_welcome.tmpl", data)
 		if err != nil {
 			app.logger.Error(err.Error())
 		}
