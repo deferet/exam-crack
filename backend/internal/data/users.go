@@ -28,6 +28,7 @@ type User struct {
 	Username  string    `json:"username"`
 	Name      string    `json:"name"`
 	Surname   string    `json:"surname"`
+	Activated bool      `json:"activated"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -187,7 +188,7 @@ func (m UserModel) GetByEmail(email string) (*User, error) {
 func (m UserModel) Update(user *User) error {
 	query := `
         UPDATE users 
-        SET UserType = $1, email = $2, hashed_password = $3, username = $4, name = $5, surname = $6
+        SET user_type = $1, email = $2, hashed_password = $3, username = $4, name = $5, surname = $6
         WHERE id = $7
         RETURNING updated_at`
 
@@ -198,6 +199,7 @@ func (m UserModel) Update(user *User) error {
 		user.Username,
 		user.Name,
 		user.Surname,
+		user.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
