@@ -13,16 +13,16 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 
-	router.HandlerFunc(http.MethodPost, "/v1/tests", app.createTestHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/tests", app.requireActivatedUser(app.createTestHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/tests/:id", app.showTestHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/tests", app.listTestsHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
-	router.HandlerFunc(http.MethodPut, "/v1/users/password", app.updateUserPasswordHandler)
+	router.HandlerFunc(http.MethodPut, "/v1/users/password", app.requireActivatedUser(app.updateUserPasswordHandler))
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAutheticationTokenHandler)
 
 	// TODO - Add panic recovery middleware
-	return router
+	return app.authenticate(router)
 }
