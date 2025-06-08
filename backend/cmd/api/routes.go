@@ -24,5 +24,5 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAutheticationTokenHandler)
 
 	// TODO - Add panic recovery middleware
-	return app.authenticate(router)
+	return app.corsEnabled(app.authenticate(router))
 }
