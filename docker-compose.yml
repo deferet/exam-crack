@@ -13,6 +13,13 @@ services:
       - EXAMCRACK_DB_DSN=postgres://examcrack:examcrack@db:5432/examcrack?sslmode=disable
       - DB_HOST=db
       - DB_PORT=5432
+    volumes:
+      - ./scripts/wait-for-it.sh:/wait-for-it.sh
+    command: >
+      /bin/sh -c "
+        chmod +x /wait-for-it.sh &&
+        /wait-for-it.sh db:5432 --timeout=30 --strict -- ./start-backend.sh
+      "
 
   frontend:
     build: ./frontend
