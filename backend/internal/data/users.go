@@ -116,8 +116,8 @@ type UserModel struct {
 
 func (m UserModel) Insert(user *User) error {
 	query := `
-        INSERT INTO users (id, user_type, email, hashed_password, username, name, surname, created_at, updated_at) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        INSERT INTO users (id, user_type, email, hashed_password, username, name, surname, activated, created_at, updated_at) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING id, created_at, updated_at`
 
 	args := []any{
@@ -128,6 +128,7 @@ func (m UserModel) Insert(user *User) error {
 		user.Username,
 		user.Name,
 		user.Surname,
+		user.Activated,
 		user.CreatedAt,
 		user.UpdatedAt,
 	}
