@@ -153,7 +153,7 @@ func (m UserModel) Insert(user *User) error {
 
 func (m UserModel) GetByEmail(email string) (*User, error) {
 	query := `
-        SELECT id, user_type, email, hashed_password, username, name, surname, created_at, updated_at
+        SELECT id, user_type, email, hashed_password, username, name, surname, activated, created_at, updated_at
         FROM users
         WHERE email = $1`
 
@@ -170,6 +170,7 @@ func (m UserModel) GetByEmail(email string) (*User, error) {
 		&user.Username,
 		&user.Name,
 		&user.Surname,
+		&user.Activated,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -225,7 +226,7 @@ func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error)
 	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
 
 	query := `
-        SELECT users.id, users.user_type, users.email, users.hashed_password, users.username, users.name, users.surname, users.created_at, users.updated_at
+        SELECT users.id, users.user_type, users.email, users.hashed_password, users.username, users.name, users.surname, users.Activated, users.created_at, users.updated_at
         FROM users
         INNER JOIN tokens
         ON users.id = tokens.user_id
@@ -248,6 +249,7 @@ func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error)
 		&user.Username,
 		&user.Name,
 		&user.Surname,
+		&user.Activated,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)

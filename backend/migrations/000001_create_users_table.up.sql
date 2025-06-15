@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS users (
     username text NOT NULL,
     name text,
     surname text,
-    activated boolean NOT NULL DEFAULT false,
     version integer NOT NULL DEFAULT 0,
     last_login timestamp(0) with time zone,
     created_at timestamp(0) with time zone NOT NULL DEFAULT now(),  
