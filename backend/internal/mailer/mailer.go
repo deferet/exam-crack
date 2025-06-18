@@ -9,6 +9,7 @@ import (
 	"github.com/go-mail/mail/v2"
 )
 
+
 // Do not remove the comment below, it is used by the go:embed directive.
 // ↓↓↓
 
