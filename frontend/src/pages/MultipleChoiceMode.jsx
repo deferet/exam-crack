@@ -1,48 +1,62 @@
 import React, { useState, useEffect } from "react";
 
+/**
+ * Multiple-choice quiz dla pojedynczego testu.
+ *
+ * props:
+ *   • test            : { questions: [{question, answer, wrongAnswers[]}, …] }
+ *   • setMode         : fn   (null → powrót do listy)
+ *   • setSelectedTest : fn   (null → wyczyść test)
+ */
 const MultipleChoiceMode = ({ test, setMode, setSelectedTest }) => {
-  // ----------------------
-  // Local state for quiz flow
-  // ----------------------
-  const [questions, setQuestions] = useState([]);      // formatted list of Q + options
-  const [currentIndex, setCurrentIndex] = useState(0); // which question we’re on
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [showResults, setShowResults] = useState(false);
-  const [score, setScore] = useState(0);
+  // ---------- lokalny stan ----------
+  const [questions, setQuestions]   = useState([]);
+  const [idx, setIdx]               = useState(0);
+  const [selected, setSelected]     = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore]           = useState(0);
 
-  // ----------------------
-  // On mount: prepare questions with real answers
-  // ----------------------
+  // ---------- przygotuj pytania ----------
   useEffect(() => {
-    // shuffle full question list
-    const shuffled = [...test.questions].sort(() => Math.random() - 0.5);
-    // take up to 10
-    const limited = shuffled.slice(0, Math.min(10, shuffled.length));
+    if (!Array.isArray(test?.questions)) return;
 
-    // build options array for each question
-    const formatted = limited.map((q) => {
-      const correct = q.answers.find((a) => a.correct).content;
-      // collect wrong answers
-      const wrongs = q.answers.filter((a) => !a.correct).map((a) => a.content);
-      // if fewer than 3, pull extras from other questions
-      const pool = test.questions
-        .map((tq) => tq.answers.find((a) => a.correct).content)
-        .filter((c) => c !== correct);
-      while (wrongs.length < 3) {
-        const pick = pool[Math.floor(Math.random() * pool.length)];
-        if (pick && !wrongs.includes(pick)) wrongs.push(pick);
+    // 1) tasujemy listę pytań i bierzemy maks. 10
+    const base = [...test.questions]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(10, test.questions.length));
+
+    // 2) zbiór potencjalnych „dodatkowych” odpowiedzi
+    const poolAll = test.questions
+      .map((q) => q.answer)
+      .filter((a) => a && a.trim() !== "");
+
+    // 3) formatuj każde pytanie
+    const prepared = base.map((q) => {
+      const correct = q.answer;
+
+      //  — błędne odpowiedzi z tego pytania, bez pustych, bez duplikatów z correct
+      const wrongs = (q.wrongAnswers || [])
+        .filter((w) => w && w.trim() !== "" && w !== correct);
+
+      //  — dopełnij, jeśli potrzeba, do 3 błędnych (czyli 4 opcji razem)
+      const available = poolAll.filter(
+        (a) => a !== correct && !wrongs.includes(a)
+      );
+      while (wrongs.length < 3 && available.length) {
+        const pickIdx = Math.floor(Math.random() * available.length);
+        wrongs.push(available.splice(pickIdx, 1)[0]);
       }
-      // shuffle the four options
+
+      //  — shuffle, żeby poprawna nie była zawsze pierwsza
       const options = shuffle([correct, ...wrongs]);
+
       return { question: q.question, correctAnswer: correct, options };
     });
 
-    setQuestions(formatted);
+    setQuestions(prepared);
   }, [test]);
 
-  // ----------------------
-  // Utility: Fisher–Yates shuffle
-  // ----------------------
+  // ---------- util: Fisher–Yates shuffle ----------
   const shuffle = (arr) => {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -52,35 +66,30 @@ const MultipleChoiceMode = ({ test, setMode, setSelectedTest }) => {
     return a;
   };
 
-  // ----------------------
-  // Handler: pick an option
-  // ----------------------
+  // ---------- wybór opcji ----------
   const handleSelect = (opt) => {
-    setSelectedOption(opt);
-    setShowResults(true);
-    if (opt === questions[currentIndex].correctAnswer) {
-      setScore((s) => s + 1);
-    }
+    if (showResult) return;
+    setSelected(opt);
+    setShowResult(true);
+    if (opt === questions[idx].correctAnswer) setScore((s) => s + 1);
   };
 
-  // ----------------------
-  // Handler: next or finish
-  // ----------------------
+  // ---------- następne pytanie ----------
   const handleNext = () => {
-    setSelectedOption(null);
-    setShowResults(false);
-    setCurrentIndex((i) => i + 1);
+    setSelected(null);
+    setShowResult(false);
+    setIdx((i) => i + 1);
   };
 
-  // nothing yet?
+  // ---------- widok ładowania ----------
   if (!questions.length) return null;
 
-  // quiz finished?
-  if (currentIndex >= questions.length) {
+  // ---------- koniec testu ----------
+  if (idx >= questions.length) {
     return (
       <div className="bg-[#0f172a] min-h-screen flex flex-col items-center justify-center p-6 text-white">
         <h1 className="text-3xl font-bold mb-4">Test Finished!</h1>
-        <p className="text-xl mb-4">
+        <p className="text-xl mb-6">
           Your score: {score} / {questions.length}
         </p>
         <button
@@ -96,36 +105,39 @@ const MultipleChoiceMode = ({ test, setMode, setSelectedTest }) => {
     );
   }
 
-  const current = questions[currentIndex];
+  // ---------- aktualne pytanie ----------
+  const cur = questions[idx];
 
-  // ----------------------
-  // Render current question
-  // ----------------------
   return (
     <div className="bg-[#0f172a] min-h-screen flex flex-col items-center justify-center p-6 text-white">
       <div className="w-full max-w-xl">
         <h2 className="text-2xl font-bold mb-4">
-          Question {currentIndex + 1}
+          Question {idx + 1} / {questions.length}
         </h2>
-        <p className="mb-6">{current.question}</p>
+        <p className="mb-6">{cur.question}</p>
+
         <div className="space-y-4">
-          {current.options.map((opt, i) => {
-            let classes = "w-full p-4 rounded text-left border transition ";
-            if (showResults) {
-              if (opt === current.correctAnswer) {
+          {cur.options.map((opt, i) => {
+            let classes =
+              "w-full p-4 rounded text-left border transition ";
+
+            if (showResult) {
+              if (opt === cur.correctAnswer) {
                 classes += "bg-green-500 border-green-500 text-white";
-              } else if (opt === selectedOption) {
+              } else if (opt === selected) {
                 classes += "bg-red-500 border-red-500 text-white";
               } else {
                 classes += "bg-gray-800 border-gray-600 text-white";
               }
             } else {
-              classes += "bg-gray-800 border-gray-600 hover:bg-blue-500 hover:border-blue-500 hover:text-white";
+              classes +=
+                "bg-gray-800 border-gray-600 hover:bg-blue-500 hover:border-blue-500 hover:text-white";
             }
+
             return (
               <button
                 key={i}
-                disabled={showResults}
+                disabled={showResult}
                 className={classes}
                 onClick={() => handleSelect(opt)}
               >
@@ -134,9 +146,10 @@ const MultipleChoiceMode = ({ test, setMode, setSelectedTest }) => {
             );
           })}
         </div>
-        {showResults && (
+
+        {showResult && (
           <button className="form-button mt-6" onClick={handleNext}>
-            {currentIndex + 1 === questions.length ? "See Results" : "Next"}
+            {idx + 1 === questions.length ? "See Results" : "Next"}
           </button>
         )}
       </div>
