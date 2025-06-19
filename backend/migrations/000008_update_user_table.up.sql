@@ -1,2 +1,2 @@
 ALTER TABLE users
-ADD COLUMN IF NOT EXISTS activated boolean NOT NULL DEFAULT false;
+ADD COLUMN IF NOT EXISTS activated boolean NOT NULL DEFAULT true;

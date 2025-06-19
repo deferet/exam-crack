@@ -70,7 +70,7 @@ const Register = () => {
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <div className="bg-gray-800 p-8 rounded-lg max-w-md w-full">
-        <h2 className="text-2xl mb-6 text-center">Rejestracja</h2>
+        <h2 className="text-2xl mb-6 text-center">Register</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="username" className="block mb-2">Username*</label>
@@ -128,7 +128,7 @@ const Register = () => {
             type="submit"
             className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded text-white font-semibold"
           >
-            Zarejestruj się
+            Register
           </button>
         </form>
       </div>

@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"errors"
+
 )
 
 var (
@@ -11,14 +12,18 @@ var (
 )
 
 type Models struct {
-	Tests  TestModel
+	Tests TestModel
+    Questions QuestionModel
+    Answers AnswerModel
 	Users  UserModel
 	Tokens TokenModel
 }
 
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Tests:  TestModel{DB: db},
+		Tests:      TestModel{DB: db},
+        Questions:  QuestionModel{DB: db},
+        Answers:    AnswerModel{DB: db},
 		Users:  UserModel{DB: db},
 		Tokens: TokenModel{DB: db},
 	}

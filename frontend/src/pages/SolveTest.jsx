@@ -1,63 +1,71 @@
 import React, { useState } from "react";
 
 const SolveTest = ({ test, setMode, setSelectedTest }) => {
-  // Track index of current question
+  // ----------------------
+  // Local state
+  // ----------------------
   const [currentIndex, setCurrentIndex] = useState(0);
-  // Store user's input for the current answer
   const [inputValue, setInputValue] = useState("");
-  // Count how many answers are correct
-  const [correctAnswers, setCorrectAnswers] = useState(0);
-  // Flag to show final result screen
+  const [correctCount, setCorrectCount] = useState(0);
   const [showResult, setShowResult] = useState(false);
 
-  // Handle answer submission
+  // ----------------------
+  // Handle form submit
+  // ----------------------
   const handleSubmit = () => {
-    // Increment correct count if answer matches (case-insensitive)
-    if (
-      inputValue.trim().toLowerCase() ===
-      test.questions[currentIndex].answer.toLowerCase()
-    ) {
-      setCorrectAnswers((prev) => prev + 1);
+    // derive the correct answer from the answers array
+    const correctAnswer = test.questions[currentIndex].answers.find(
+      (a) => a.correct
+    )?.content.trim().toLowerCase();
+
+    if (inputValue.trim().toLowerCase() === correctAnswer) {
+      setCorrectCount((c) => c + 1);
     }
 
-    // Move to next question or show results if at end
+    // advance or finish
     if (currentIndex + 1 < test.questions.length) {
-      setCurrentIndex((prev) => prev + 1);
-      setInputValue(""); // Reset input for next question
+      setCurrentIndex((i) => i + 1);
+      setInputValue("");
     } else {
       setShowResult(true);
     }
   };
 
-  // Return to tests list
-  const handleBackToTests = () => {
+  // ----------------------
+  // Return to test list
+  // ----------------------
+  const handleBack = () => {
     setMode(null);
     setSelectedTest(null);
   };
 
-  // If test is completed, display score summary
+  // ----------------------
+  // Render results screen
+  // ----------------------
   if (showResult) {
-    // Calculate percentage score
-    const scorePercentage = Math.round(
-      (correctAnswers / test.questions.length) * 100
+    const percentage = Math.round(
+      (correctCount / test.questions.length) * 100
     );
 
     return (
       <div className="bg-[#0f172a] min-h-screen flex flex-col items-center py-12 px-6 text-white">
         <h1 className="text-4xl font-bold mb-8">Test Results</h1>
         <p className="text-xl mb-4">
-          You answered {correctAnswers} out of {test.questions.length} questions
-          correctly.
+          You answered {correctCount} out of {test.questions.length} correctly.
         </p>
-        <p className="text-xl font-bold mb-8">Your score: {scorePercentage}%</p>
-        <button className="form-button mt-4" onClick={handleBackToTests}>
+        <p className="text-xl font-bold mb-8">Score: {percentage}%</p>
+        <button className="form-button mt-4" onClick={handleBack}>
           Back to My Tests
         </button>
       </div>
     );
   }
 
-  // Render current question and input form
+  // ----------------------
+  // Render question form
+  // ----------------------
+  const current = test.questions[currentIndex];
+
   return (
     <div className="bg-[#0f172a] min-h-screen flex flex-col items-center py-12 px-6 text-white">
       <h1 className="text-4xl font-bold mb-8">Solve Test</h1>
@@ -65,18 +73,15 @@ const SolveTest = ({ test, setMode, setSelectedTest }) => {
         <h2 className="text-2xl font-bold mb-4">
           Question {currentIndex + 1} of {test.questions.length}
         </h2>
-        <p className="text-lg mb-6">
-          {test.questions[currentIndex].question}
-        </p>
+        <p className="text-lg mb-6">{current.question}</p>
         <input
           type="text"
           className="form-input mb-4 w-full"
           placeholder="Your answer"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)} // Update answer input
+          onChange={(e) => setInputValue(e.target.value)}
         />
         <button className="form-button w-full" onClick={handleSubmit}>
-          {/* Change button text on last question */}
           {currentIndex + 1 === test.questions.length
             ? "Finish Test"
             : "Next Question"}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SolveTest from "./SolveTest";
 import MatchingGame from "./MatchingGame";
 import LearningMode from "./LearningMode";
@@ -11,7 +11,6 @@ const MyTests = () => {
   const [tests, setTests] = useState([]);
   const [newTestName, setNewTestName] = useState("");
   const [questions, setQuestions] = useState([]);
-  // currentQuestion always has at least one wrongAnswers field
   const [currentQuestion, setCurrentQuestion] = useState({
     question: "",
     answer: "",
@@ -35,6 +34,32 @@ const MyTests = () => {
   const testsPerPage = 5;
   const maxTests = 15;
 
+  
+  const token = localStorage.getItem("token") || "";
+
+  
+  useEffect(() => {
+    async function fetchTests() {
+      try {
+        const res = await fetch("/v1/tests", {
+          headers: { "Authorization": `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Nie udało się pobrać testów");
+        const { tests: payloadTests } = await res.json();
+        const testsFromServer = Array.isArray(payloadTests)
+          ? payloadTests.map(t => ({
+              ...t,
+              questions: Array.isArray(t.questions) ? t.questions : [],
+            }))
+          : [];
+        setTests(testsFromServer);
+      } catch (err) {
+        setErrorMessage(err.message);
+      }
+    }
+    fetchTests();
+  }, []);
+
   // ----------------------
   // Utility functions
   // ----------------------
@@ -55,7 +80,6 @@ const MyTests = () => {
 
   const handleAddQuestion = () => {
     const { question, answer, wrongAnswers } = currentQuestion;
-    // require at least one wrong answer
     if (!question.trim() || !answer.trim() || !wrongAnswers[0].trim()) {
       setErrorMessage(
         "Question, correct answer and at least one wrong answer are required."
@@ -67,7 +91,6 @@ const MyTests = () => {
       return;
     }
     setQuestions([...questions, currentQuestion]);
-    // reset inputs
     setCurrentQuestion({ question: "", answer: "", wrongAnswers: [""] });
     setErrorMessage("");
   };
@@ -81,14 +104,41 @@ const MyTests = () => {
       setErrorMessage(`Maximum of ${maxTests} tests reached.`);
       return;
     }
-    // append new test
-    setTests([...tests, { id: Date.now(), name: newTestName, questions }]);
-    // reset all creation state
-    setNewTestName("");
-    setQuestions([]);
-    setCurrentQuestion({ question: "", answer: "", wrongAnswers: [""] });
-    setIsAddingQuestions(false);
-    setErrorMessage("");
+    (async () => {
+      try {
+        const res = await fetch("/v1/tests", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: newTestName,
+            description: "",
+            categories: ["all"],
+            questions: questions.map(q => ({
+              question: q.question,
+              answer: String(q.answer),
+              wrongAnswers: q.wrongAnswers
+            }))
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "Failed to save test");
+        }
+        const { test } = await res.json();
+        setTests([{ ...test, questions }, ...tests]);
+
+        setNewTestName("");
+        setQuestions([]);
+        setCurrentQuestion({ question: "", answer: "", wrongAnswers: [""] });
+        setIsAddingQuestions(false);
+        setErrorMessage("");
+      } catch (err) {
+        setErrorMessage(err.message);
+      }
+    })();
   };
 
   // ----------------------
@@ -100,7 +150,6 @@ const MyTests = () => {
   };
 
   const handleUpdateQuestion = (index, updated) => {
-    // replace one question in editingTest.questions
     const updatedQs = editingTest.questions.map((q, i) =>
       i === index ? updated : q
     );
@@ -108,7 +157,6 @@ const MyTests = () => {
   };
 
   const handleDeleteQuestion = (index) => {
-    // remove one question
     const updatedQs = editingTest.questions.filter((_, i) => i !== index);
     setEditingTest({ ...editingTest, questions: updatedQs });
   };
@@ -133,26 +181,97 @@ const MyTests = () => {
     setErrorMessage("");
   };
 
-  const saveEditedTest = () => {
-    // commit changes into tests array
-    setTests(
-      tests.map((t) =>
-        t.id === editingTest.id ? editingTest : t
-      )
-    );
-    setEditingTest(null);
+  const handleSaveEditedTest = async () => {
+    try {
+      
+      const normDescription =
+        typeof editingTest.description === "string"
+          ? editingTest.description
+          : (editingTest.description?.String ?? "");
+  
+      const normCategories =
+        Array.isArray(editingTest.categories) && editingTest.categories.length
+          ? editingTest.categories
+          : ["all"];
+  
+      
+      const metaPayload = {
+        name:        editingTest.name ?? "",
+        description: normDescription,
+        categories:  normCategories,
+      };
+  
+      const resMeta = await fetch(`/v1/tests/${editingTest.id}`, {
+        method:  "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:  `Bearer ${token}`,
+        },
+        body: JSON.stringify(metaPayload),
+      });
+  
+      if (!resMeta.ok) {
+        const txt = await resMeta.text();
+        throw new Error(`${resMeta.status} ${resMeta.statusText}: ${txt}`);
+      }
+  
+      
+      const resQ = await fetch(`/v1/tests/${editingTest.id}/questions`, {
+        method:  "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:  `Bearer ${token}`,
+        },
+        body: JSON.stringify({ questions: editingTest.questions }),
+      });
+  
+      if (!resQ.ok) {
+        const txt = await resQ.text();
+        throw new Error(`${resQ.status} ${resQ.statusText}: ${txt}`);
+      }
+  
+      
+      const { test: updated } = await resMeta.json(); 
+      setTests(ts =>
+        ts.map(t =>
+          t.id === updated.id
+            ? { ...updated, questions: editingTest.questions }
+            : t
+        )
+      );
+      setEditingTest(null);
+      setErrorMessage("");
+  
+    } catch (err) {
+      console.error("SAVE ERROR", err);
+      setErrorMessage(err.message);
+    }
   };
+  
+  
 
   // ----------------------
   // Handler: Delete test
   // ----------------------
   const handleDeleteTest = (id) => {
-    setTests(tests.filter((t) => t.id !== id));
+    (async () => {
+      try {
+        const res = await fetch(`/v1/tests/${id}`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Nie udało się usunąć testu");
+        setTests(tests.filter((t) => t.id !== id));
+      } catch (err) {
+        setErrorMessage(err.message);
+      }
+    })();
   };
 
   // ----------------------
   // Filtering, sorting & pagination
-  // ----------------------
+  // ----------------------```
+
   const filteredSorted = tests
     .filter((t) =>
       t.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -161,9 +280,9 @@ const MyTests = () => {
       if (sortBy === "name") return a.name.localeCompare(b.name);
       if (sortBy === "name-desc") return b.name.localeCompare(a.name);
       if (sortBy === "questions")
-        return b.questions.length - a.questions.length;
+        return (b.questions?.length ?? 0) - (a.questions?.length ?? 0);
       if (sortBy === "questions-asc")
-        return a.questions.length - b.questions.length;
+        return (a.questions?.length ?? 0) - (b.questions?.length ?? 0);
       return 0;
     });
 
@@ -209,7 +328,7 @@ const MyTests = () => {
                 }
               />
               {/* wrong answers list */}
-              {q.wrongAnswers.map((w, i) => (
+              {(q.wrongAnswers ?? []).map((w, i) => (
                 <div key={i} className="flex items-center mb-2">
                   <input
                     type="text"
@@ -237,7 +356,7 @@ const MyTests = () => {
                 </div>
               ))}
               {/* add additional wrong answer */}
-              {q.wrongAnswers.length < 4 && (
+              {(q.wrongAnswers?.length ?? 0) < 4 && (
                 <button
                   type="button"
                   className="w-full mb-2 py-2 rounded bg-red-500 text-white hover:bg-red-600"
@@ -280,7 +399,7 @@ const MyTests = () => {
                 setNewQuestion({ ...newQuestion, answer: e.target.value })
               }
             />
-            {newQuestion.wrongAnswers.map((w, i) => (
+            {(newQuestion.wrongAnswers ?? []).map((w, i) => (
               <div key={i} className="flex items-center mb-2">
                 <input
                   type="text"
@@ -293,7 +412,7 @@ const MyTests = () => {
                     setNewQuestion({ ...newQuestion, wrongAnswers: arr });
                   }}
                 />
-                {newQuestion.wrongAnswers.length > 1 && (
+                {(newQuestion.wrongAnswers?.length ?? 0) < 4 && (
                   <button
                     type="button"
                     className="text-red-500 ml-2"
@@ -332,9 +451,12 @@ const MyTests = () => {
           </div>
 
           {/* save changes */}
-          <button className="form-button w-full" onClick={saveEditedTest}>
+          <button
+            className="form-button w-full"
+            onClick={handleSaveEditedTest}
+          >
             Save Changes
-          </button>
+        </button>
         </div>
       </div>
     );
@@ -348,6 +470,7 @@ const MyTests = () => {
       case "solve":
         return (
           <SolveTest
+
             test={selectedTest}
             setMode={setMode}
             setSelectedTest={setSelectedTest}
@@ -519,9 +642,10 @@ const MyTests = () => {
           )}
 
           {/* save test */}
-          <button className="form-button w-full" onClick={handleAddTest}>
+          <button onClick={() => handleAddTest()}>
             Save Test
           </button>
+
         </div>
       )}
 
