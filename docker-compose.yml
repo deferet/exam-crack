@@ -1,26 +1,6 @@
 version: '3.9'
 
 services:
-  backend:
-    build: 
-      context: .
-      dockerfile: backend/Dockerfile
-    ports:
-      - "4000:4000"
-    depends_on:
-      - db
-    environment:
-      - EXAMCRACK_DB_DSN=postgres://examcrack:examcrack@db:5432/examcrack?sslmode=disable
-      - DB_HOST=db
-      - DB_PORT=5432
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "5173:5173"
-    depends_on:
-      - backend
-
   db:
     image: postgres:latest
     restart: always
@@ -32,12 +12,32 @@ services:
       - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "examcrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: 
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - EXAMCRACK_DB_DSN=postgres://examcrack:examcrack@db:5432/examcrack?sslmode=disable
+      - DB_HOST=db
+      - DB_PORT=5432
 
   migrate:
     image: migrate/migrate
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./backend/migrations:/migrations
     command: [
@@ -45,6 +45,19 @@ services:
       "-database", "postgres://examcrack:examcrack@db:5432/examcrack?sslmode=disable",
       "up"
     ]
+    restart: "on-failure"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
 volumes:
   postgres_data:
