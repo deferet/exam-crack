@@ -218,3 +218,50 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) changeOwnPasswordHandler(w http.ResponseWriter, r *http.Request) {
+    var input struct {
+        CurrentPassword string `json:"currentPassword"`
+        NewPassword     string `json:"newPassword"`
+    }
+    if err := app.readJSON(w, r, &input); err != nil {
+        app.badRequestResponse(w, r, err)
+        return
+    }
+
+    
+    user := app.contextGetUser(r)
+
+    
+    match, _ := user.Password.Matches(input.CurrentPassword)
+    if !match {
+        app.invalidCredentialsResponse(w, r)
+        return
+    }
+
+    
+    if len(input.NewPassword) < 8 {
+        app.failedValidationResponse(w, r, map[string]string{
+            "newPassword": "must be at least 8 characters long",
+        })
+        return
+    }
+
+    
+    if err := user.Password.Set(input.NewPassword); err != nil {
+        app.serverErrorResponse(w, r, err)
+        return
+    }
+
+    
+    if err := app.models.Users.Update(user); err != nil {
+        if err == data.ErrEditConflict {
+            app.editConflictResponse(w, r)
+        } else {
+            app.serverErrorResponse(w, r, err)
+        }
+        return
+    }
+
+    app.writeJSON(w, http.StatusOK, envelope{"message": "password updated"}, nil)
+}
