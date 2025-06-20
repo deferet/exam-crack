@@ -4,6 +4,44 @@ import MatchingGame from "./MatchingGame";
 import LearningMode from "./LearningMode";
 import MultipleChoiceMode from "./MultipleChoiceMode";
 
+
+
+
+function normalizeQuestions(raw = []) {
+  return raw.map((q) => {
+    // --- poprawna ---
+    let correct = "";
+    if (typeof q.answer === "string") {
+      // nowy format
+      correct = q.answer.trim();
+    } else if (Array.isArray(q.answers)) {
+      // stary format
+      const hit = q.answers.find((a) => a && a.correct);
+      correct = hit ? String(hit.content).trim() : "";
+    }
+
+    // --- błędne ---
+    let wrongs = [];
+    if (Array.isArray(q.wrongAnswers)) {
+      wrongs = q.wrongAnswers
+        .filter((w) => w && w.trim() !== "")
+        .map((w) => w.trim());
+    } else if (Array.isArray(q.answers)) {
+      wrongs = q.answers
+        .filter((a) => !a.correct && a.content && a.content.trim() !== "")
+        .map((a) => a.content.trim());
+    }
+
+    if (wrongs.length === 0) wrongs = [""]; // żeby edytor pokazał 1 pole
+
+    return {
+      question:     q.question,
+      answer:       correct,
+      wrongAnswers: wrongs,
+    };
+  });
+}
+
 const MyTests = () => {
   // ----------------------
   // State declarations
@@ -49,7 +87,7 @@ const MyTests = () => {
         const testsFromServer = Array.isArray(payloadTests)
           ? payloadTests.map(t => ({
               ...t,
-              questions: Array.isArray(t.questions) ? t.questions : [],
+              questions: normalizeQuestions(t.questions),
             }))
           : [];
         setTests(testsFromServer);
@@ -145,7 +183,10 @@ const MyTests = () => {
   // Handlers: Edit flow
   // ----------------------
   const handleEditQuestions = (test) => {
-    setEditingTest(test);
+    setEditingTest({
+      ...test,
+      questions: normalizeQuestions(test.questions),  // <- tu normalizacja
+    });
     setErrorMessage("");
   };
 
@@ -222,7 +263,13 @@ const MyTests = () => {
           "Content-Type": "application/json",
           Authorization:  `Bearer ${token}`,
         },
-        body: JSON.stringify({ questions: editingTest.questions }),
+        body: JSON.stringify({
+           questions: editingTest.questions.map(q => ({
+              question:      q.question,
+              answer:        q.answer,
+              wrongAnswers:  q.wrongAnswers.filter(w => w.trim() !== "")
+            }))
+        }),
       });
   
       if (!resQ.ok) {
@@ -322,7 +369,7 @@ const MyTests = () => {
               <input
                 type="text"
                 className="form-input mb-2 w-full"
-                value={q.answer}
+                value={q.answer ?? ""}
                 onChange={(e) =>
                   handleUpdateQuestion(idx, { ...q, answer: e.target.value })
                 }
@@ -334,7 +381,7 @@ const MyTests = () => {
                     type="text"
                     className="form-input flex-grow"
                     placeholder={`Wrong answer ${i + 1}`}
-                    value={w}
+                    value={w ?? ""}
                     onChange={(e) => {
                       const arr = [...q.wrongAnswers];
                       arr[i] = e.target.value;
