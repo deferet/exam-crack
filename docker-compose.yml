@@ -12,7 +12,6 @@ services:
       - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "examcrack"]
       interval: 5s
